@@ -2,18 +2,18 @@
 
 #include "../solver/Manager.h"
 
-#include "../modules/SimplexModule/SimplexModule.h"
+#include "../modules/LRAModule/LRAModule.h"
 #include "../modules/SATModule/SATModule.h"
 
 namespace smtrat
 {
-	class SimplexStrategy: public Manager
+	class LRAOnly: public Manager
 	{
 		public:
-			SimplexStrategy(): Manager() {
+			LRAOnly(): Manager() {
 				setStrategy({
 					addBackend<SATModule<SATSettings1>>({
-						addBackend<SimplexModule<SimplexSettings1>>()
+						addBackend<LRAModule<LRASettings1>>()
 					})
 				});
 			}

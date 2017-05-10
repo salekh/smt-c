@@ -1,4 +1,4 @@
 #pragma once
 
-#include "RatComp2016.h"
-#define CMakeStrategySolver smtrat::RatComp2016
+#include "LRAOnly.h"
+#define CMakeStrategySolver smtrat::LRAOnly
