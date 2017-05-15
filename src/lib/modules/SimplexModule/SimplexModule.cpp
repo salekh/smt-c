@@ -25,7 +25,7 @@ namespace smtrat
 	template<class Settings>
 	bool SimplexModule<Settings>::informCore( const FormulaT& _constraint )
 	{
-		// Your code.
+		listFormulas.push_back(_constraint);
 		return true; // This should be adapted according to your implementation.
 	}
 	
@@ -36,7 +36,10 @@ namespace smtrat
 	template<class Settings>
 	bool SimplexModule<Settings>::addCore( ModuleInput::const_iterator _subformula )
 	{
-		// Your code.
+		if(tableauInitialized == false){
+			tableauInitialized = true;
+			tableau = new Tableau(listFormulas);
+		}
 		return true; // This should be adapted according to your implementation.
 	}
 	

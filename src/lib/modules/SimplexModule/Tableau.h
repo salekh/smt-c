@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 #include <list>
 #include "../../Common.h"
+#include "TVariable.h"
 
 namespace smtrat
 {
@@ -34,14 +35,14 @@ namespace smtrat
 				carl::FastMap<FormulaT,TVariable> formToVar;
 				
 				//Mapper between Formula and Tableau Variables
-				carl::FastMap<Variable,TVariable> varToTVar;
+				carl::FastMap<carl::Variable,TVariable> varToTVar;
 				
 				
 				
 				
 			public:
 					
-					Tableau(std::list<FormulaT> formulas);
+					Tableau(const std::list<FormulaT*>& formulas);
 					
 					//methods as described in the paper
 					void pivotAndUpdate(TVariable v1, TVariable v2, double);
@@ -57,10 +58,10 @@ namespace smtrat
 					
 					
 					//used as helper for checkCore
-					VariableT findSmallestVariable(bool isBasic);
+					TVariable findSmallestVariable(bool isBasic);
 					
 					
 					//Helper function to convert
-					TVariable convertVar(Variable var);
-		}
+					TVariable convertVar(carl::Variable var);
+		};
 }

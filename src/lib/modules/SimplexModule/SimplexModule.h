@@ -8,9 +8,11 @@
 
 #pragma once
 
+#include <list>
 #include "../../solver/Module.h"
 #include "SimplexStatistics.h"
 #include "SimplexSettings.h"
+#include "Tableau.h"
 
 namespace smtrat
 {
@@ -21,6 +23,11 @@ namespace smtrat
 #ifdef SMTRAT_DEVOPTION_Statistics
 			SimplexStatistics mStatistics;
 #endif
+
+			std::list<FormulaT> listFormulas = { };
+			Tableau tableau;
+			bool tableauInitialized = false;
+			
 			// Members.
 			
 		public:

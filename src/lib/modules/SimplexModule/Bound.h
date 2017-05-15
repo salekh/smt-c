@@ -1,0 +1,6 @@
+namespace smtrat
+{
+	struct Bound
+	{
+	};
+}

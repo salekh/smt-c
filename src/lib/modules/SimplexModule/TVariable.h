@@ -1,5 +1,7 @@
 #include <stack>
 #include "../../Common.h"
+#include "Bound.h"
+
 
 namespace smtrat
 {
@@ -11,12 +13,12 @@ namespace smtrat
 				
 				int id;
 				
-				Variable original;
+				carl::Variable original;
 				
-				value double;
+				double value;
 				
 				//Is stored after succesfull check, to reset for backtrace
-				lastValue double;
+				double lastValue;
 				
 				
 				Bound upperBound;
@@ -42,5 +44,5 @@ namespace smtrat
 				
 				//reset bounds, loads old value
 				void backtrack();
-		}
+		};
 }
