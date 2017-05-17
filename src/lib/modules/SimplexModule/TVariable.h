@@ -1,6 +1,7 @@
 #include <stack>
 #include "../../Common.h"
 #include "Bound.h"
+#include <limits>
 
 
 namespace smtrat
@@ -15,10 +16,10 @@ namespace smtrat
 				
 				carl::Variable original;
 				
-				double value;
+				double value = 0;
 				
 				//Is stored after succesfull check, to reset for backtrace
-				double lastValue;
+				double lastValue = 0;
 				
 				
 				Bound upperBound;
@@ -36,7 +37,13 @@ namespace smtrat
 				int positionAsNonbasic;
 				
 			
-			public:
+	public:
+			
+				TVariable();
+				
+				TVariable(int pId, bool pIsBasic);
+				
+				TVariable(carl::Variable pOriginal, int pId, bool pIsBasic);
 			
 				void changeUpperBound(Bound b);
 				
@@ -44,5 +51,7 @@ namespace smtrat
 				
 				//reset bounds, loads old value
 				void backtrack();
+				
+				int getId() { return id; };
 		};
 }

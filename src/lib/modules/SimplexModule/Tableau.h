@@ -1,5 +1,6 @@
 #include <Eigen/Dense>
 #include <list>
+#include <algorithm>
 #include "../../Common.h"
 #include "TVariable.h"
 
@@ -53,7 +54,7 @@ namespace smtrat
 					
 					
 					//used by insertCore
-					void activateRow(FormulaT formula);
+					bool activateRow(FormulaT formula);
 					
 					//used by removeCore
 					void deactivateRow(FormulaT formula);
@@ -65,5 +66,8 @@ namespace smtrat
 					
 					//Helper function to convert
 					TVariable convertVar(carl::Variable var);
+					
+					//Prints the tableau on the screen
+					void print();
 		};
 }

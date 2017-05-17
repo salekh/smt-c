@@ -43,7 +43,9 @@ namespace smtrat
 			tableauInitialized = true;
 			tableau = Tableau(listFormulas);
 		}
-		return true; // This should be adapted according to your implementation.
+		
+		return tableau.activateRow(_subformula->formula());
+		//return true; // This should be adapted according to your implementation.
 	}
 	
 	template<class Settings>
