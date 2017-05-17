@@ -9,7 +9,7 @@ namespace smtrat
         class TVariable{
 			
 			
-	private:
+			private:
 				
 				int id;
 				

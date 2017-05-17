@@ -4,40 +4,44 @@
 namespace smtrat
 {
 	
-	Tableau(const std::list<FormulaT*>& formulas){
+	Tableau::Tableau(){}
+	
+	Tableau::Tableau(std::list<FormulaT> formulas){
 		for(auto form : formulas)
 		{
 			SMTRAT_LOG_ERROR("smtrat.my", "TABLEAU CREATE " << form.toString());
 		}
 	}
 	
-	void Tableau::pivotAndUpdate(TVariable v1, TVariable v2, double);
+	void Tableau::pivotAndUpdate(TVariable v1, TVariable v2, double d)
 	{
 	}
 	
-	void Tableau::update(TVariable v, Bound b);
+	void Tableau::update(TVariable v, Bound b)
 	{
 	}
 	
-	void Tableau::activateRow(FormulaT formula);
-	{
-	}
-	
-	
-	void Tableau::deactivateRow(FormulaT formula);
+	void Tableau::activateRow(FormulaT formula)
 	{
 	}
 	
 	
-	VariableT Tableau::findSmallestVariable(bool isBasic);
+	void Tableau::deactivateRow(FormulaT formula)
 	{
-		return -1;
 	}
 	
 	
-	TVariable Tableau::convertVar(carl::Variable var);
+	TVariable Tableau::findSmallestVariable(bool isBasic)
 	{
-		return -1;
+		TVariable t;
+		return t;
+	}
+	
+	
+	TVariable Tableau::convertVar(carl::Variable var)
+	{
+		TVariable t;
+		return t;
 	}
 	
 }

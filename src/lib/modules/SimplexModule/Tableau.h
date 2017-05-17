@@ -40,12 +40,14 @@ namespace smtrat
 				
 				
 				
-			public:
+				public:
 					
-					Tableau(const std::list<FormulaT*>& formulas);
+					Tableau();
+					
+					Tableau(std::list<FormulaT> formulas);
 					
 					//methods as described in the paper
-					void pivotAndUpdate(TVariable v1, TVariable v2, double);
+					void pivotAndUpdate(TVariable v1, TVariable v2, double d);
 					
 					void update(TVariable v, Bound b);
 					

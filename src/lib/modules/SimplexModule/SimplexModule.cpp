@@ -38,7 +38,7 @@ namespace smtrat
 	{
 		if(tableauInitialized == false){
 			tableauInitialized = true;
-			tableau = new Tableau(listFormulas);
+			tableau = Tableau(listFormulas);
 		}
 		return true; // This should be adapted according to your implementation.
 	}
