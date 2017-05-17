@@ -28,6 +28,7 @@
 #include "SATModule.h"
 #include <iomanip>
 
+/*
 #ifdef LOGGING
 #define DEBUG_METHODS_SATMODULE
 #ifdef DEBUG_METHODS_SATMODULE
@@ -37,6 +38,7 @@
 //#define DEBUG_SATMODULE_DECISION_HEURISTIC
 //#define DEBUG_SATMODULE_LEMMA_HANDLING
 #endif
+*/
 
 using namespace Minisat;
 

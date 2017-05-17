@@ -36,6 +36,9 @@ namespace smtrat
 	template<class Settings>
 	bool SimplexModule<Settings>::addCore( ModuleInput::const_iterator _subformula )
 	{
+		//Checks if tableau is initialized
+		//If not initialized, then pass it to tableau class to collect the formulae
+
 		if(tableauInitialized == false){
 			tableauInitialized = true;
 			tableau = Tableau(listFormulas);
