@@ -38,7 +38,7 @@ namespace smtrat
 			*/
 			
 			//Create Slack TVariable
-			TVariable tVar(VariableId ,false);
+			TVariable tVar(VariableId , true);
 			VariableId ++;
 			
 			ConstraintT constraint = form.constraint();
@@ -67,7 +67,7 @@ namespace smtrat
 		
 		//Create TVariable for existing variables
 		for(auto var : variablesInFormula){
-			TVariable tVar(var,VariableId ,true);
+			TVariable tVar(var,VariableId ,false);
 			varToTVar[var] = tVar;
 			VariableId ++;
 		}
@@ -154,9 +154,38 @@ namespace smtrat
 	}
 	
 	
-	TVariable Tableau::findSmallestVariable(bool isBasic)
+	
+	TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable)> func, bool isBasic)
 	{
-		TVariable t;
+		int smallestId = -1;
+		TVariable* t = nullptr;
+		
+		if(isBasic){
+			
+			for(auto r : row){
+				if(func(r)){
+					if(r.getId() < smallestId){
+						smallestId = r.getId();
+						t = &r;
+					}
+						
+				}
+			}
+			
+		}else{
+			
+			for(auto c : column){
+				if(func(c)){
+					if(c.getId() < smallestId){
+						smallestId = c.getId();
+						t = &c;
+					}
+						
+				}
+			}
+			
+		}
+		
 		return t;
 	}
 	

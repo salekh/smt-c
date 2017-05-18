@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 #include <list>
 #include <algorithm>
+#include <functional>
 #include "../../Common.h"
 #include "TVariable.h"
 
@@ -60,8 +61,9 @@ namespace smtrat
 					void deactivateRow(FormulaT formula);
 					
 					
-					//used as helper for checkCore
-					TVariable findSmallestVariable(bool isBasic);
+					//used as helper for checkCore, find smallest Variable that fullfills the function f.
+					// function f takes a TVariable and returns a bool
+					TVariable* findSmallestVariable(std::function<bool(TVariable)> func, bool isBasic);
 					
 					
 					//Helper function to convert

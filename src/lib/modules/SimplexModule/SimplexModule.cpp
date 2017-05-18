@@ -67,6 +67,23 @@ namespace smtrat
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
+		while(true){
+			
+			std::function<bool(TVariable)> func = [](TVariable v)-> bool { return (v.getValue()<v.getLowerBound().value || v.getValue()>v.getUpperBound().value);  };
+			
+			TVariable* x = tableau.findSmallestVariable(func, true);
+			
+			if(x == nullptr){
+				return Answer::SAT; // if there is no such xi then return satisfiable
+			}else{
+				
+				//do stuff
+				
+				
+				return Answer::UNKNOWN;
+			}
+			
+		}
 		// Your code.
 		return Answer::UNKNOWN; // This should be adapted according to your implementation.
 	}

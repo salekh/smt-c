@@ -58,8 +58,8 @@ namespace smtrat
 				
 				double getValue() { return value; };
 				
-				Bound getUpperBound() { return upperBound; };
-				Bound getLowerBound() { return lowerBound; };
+				Bound& getUpperBound() { return upperBound; };
+				Bound& getLowerBound() { return lowerBound; };
 				
 				std::string getName();
 		};
