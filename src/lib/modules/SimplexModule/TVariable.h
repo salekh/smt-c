@@ -32,6 +32,8 @@ namespace smtrat
 				
 				bool isBasic;
 				
+				bool isSlack;
+				
 				//used in the method that finds the "problem set" of formulas
 				//helps to create the sets N- and N+ as described in the paper
 				int positionAsNonbasic;
@@ -53,5 +55,12 @@ namespace smtrat
 				void backtrack();
 				
 				int getId() { return id; };
+				
+				double getValue() { return value; };
+				
+				Bound getUpperBound() { return upperBound; };
+				Bound getLowerBound() { return lowerBound; };
+				
+				std::string getName();
 		};
 }

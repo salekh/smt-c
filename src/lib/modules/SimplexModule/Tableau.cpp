@@ -1,6 +1,14 @@
 #include "Tableau.h"
 #include "carl/core/logging.h"
 
+#ifdef __WIN
+	#pragma warning(push, 0)
+	#include <mpirxx.h>
+	#pragma warning(pop)
+#else
+	#include <gmpxx.h>
+#endif
+
 namespace smtrat
 {
 	
@@ -32,7 +40,26 @@ namespace smtrat
 			//Create Slack TVariable
 			TVariable tVar(VariableId ,false);
 			VariableId ++;
-			Bound b(0,true); // <----------------------- TODO: Add the correct Bounds!!!
+			
+			ConstraintT constraint = form.constraint();
+			
+			//Ceck the constraint weather it is >= or <= to create upper or lower Bound
+			bool isUpperBound;
+			switch( constraint.relation() )
+            {
+				case carl::Relation::GEQ:
+                {
+					isUpperBound = false;
+				}
+				case carl::Relation::LEQ:
+				{
+					isUpperBound = true;
+				}
+			}
+			
+			mpq_class _boundValue = mpq_class( form.constraint().constantPart() );
+			Bound b(_boundValue.get_d(),isUpperBound); 
+			cout << "Created Bound " << _boundValue.get_d() << " isUpperBound: " << isUpperBound << endl; 
 			
 			formulaToBound[form] = b;
 			formToVar[form] = tVar;
@@ -69,8 +96,10 @@ namespace smtrat
 				
 				if(formula.constraint().hasVariable(var)){
 					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
+					mpq_class _coeffValue = mpq_class( coeff.lcoeff() );
+					
 					cout << coeff << "\t"; 
-					matrix(y,x) = 0; //coeff; // <----------------------- TODO: Convert coeff to double!!!
+					matrix(y,x) = _coeffValue.get_d();
 				}
 				else{
 					cout << "0" <<  "\t";
@@ -101,8 +130,20 @@ namespace smtrat
 	{
 		Bound c = formulaToBound[formula];
 		TVariable x = formToVar[formula];
+		int row = formulaToRow[formula];
+		rowActive[row] = true;
 		
-		//AssertUpper
+		if(c.upperBound){
+			//AssertUpper
+			if(c.value >= x.getUpperBound().value){return true;}
+			if(c.value < x.getUpperBound().value){return false;}
+			x.getUpperBound().value = c.value;
+			//.....TODO add UPDATE
+			
+		}else{
+			//AssertLower
+			
+		}
 		
 		return true;
 	}
@@ -131,21 +172,36 @@ namespace smtrat
 		
 		cout << "\t";
 		for(auto c : column){
-			cout << "v" << c.getId() << "\t";
+			cout << c.getName() << "\t";
 		}
 		cout << endl;
-		cout << "--------------" << endl;
+		cout << "\t--------------" << endl;
 		
 		int a=0;
 		for(auto r : row){
-			cout << "v" << r.getId() << "|";
+			cout <<  r.getName() << "|";
 			
 			for(int i=0; i< matrix.cols();i++){
-				cout << "\t" << matrix(i,a);
+				cout << "\t" << matrix(a,i);
 			}
 			
 			cout << endl;
 			a++;
+		}
+		
+		cout << endl;
+		
+		//Print Variables with value and bounds
+		for (auto const& x : formToVar)
+		{
+			TVariable v = x.second;
+			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << endl;
+		}
+		//Print Variables with value and bounds
+		for (auto const& x : varToTVar)
+		{
+			TVariable v = x.second;
+			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << endl;
 		}
 	}
 }
