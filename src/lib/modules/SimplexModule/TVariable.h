@@ -16,10 +16,10 @@ namespace smtrat
 				
 				carl::Variable original;
 				
-				double value = 0;
+				Rational value = 0;
 				
 				//Is stored after succesfull check, to reset for backtrace
-				double lastValue = 0;
+				Rational lastValue = 0;
 				
 				
 				Bound upperBound;
@@ -56,7 +56,7 @@ namespace smtrat
 				
 				int getId() { return id; };
 				
-				double getValue() { return value; };
+				Rational getValue() { return value; };
 				
 				Bound& getUpperBound() { return upperBound; };
 				Bound& getLowerBound() { return lowerBound; };

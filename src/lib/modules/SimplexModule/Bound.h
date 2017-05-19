@@ -1,14 +1,16 @@
+#include "../../Common.h"
+
 namespace smtrat
 {
 	struct Bound
 	{
 		public:
 			bool upperBound;
-			double value;
+			Rational value;
 			
 			Bound(){}
 			
-			Bound(double boundValue, bool isUpperBound){
+			Bound(Rational boundValue, bool isUpperBound){
 				upperBound = isUpperBound;
 				value = boundValue;
 			}

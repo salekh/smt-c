@@ -1,8 +1,8 @@
-#include <Eigen/Dense>
 #include <list>
 #include <algorithm>
 #include <functional>
 #include "../../Common.h"
+#include <Eigen/Dense>
 #include "TVariable.h"
 
 namespace smtrat
@@ -14,7 +14,7 @@ namespace smtrat
 			
 			private:
 			
-				Eigen::MatrixXd matrix;
+				Eigen::Matrix<Rational, Eigen::Dynamic, Eigen::Dynamic> matrix;
 				
 				//which rows were actiavted by adding/removing formulas
 				std::vector<bool> rowActive;
@@ -49,7 +49,7 @@ namespace smtrat
 					Tableau(std::list<FormulaT> formulas);
 					
 					//methods as described in the paper
-					void pivotAndUpdate(TVariable v1, TVariable v2, double d);
+					void pivotAndUpdate(TVariable v1, TVariable v2, Rational r);
 					
 					void update(TVariable v, Bound b);
 					

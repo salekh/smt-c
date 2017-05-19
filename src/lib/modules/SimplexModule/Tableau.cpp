@@ -1,14 +1,6 @@
 #include "Tableau.h"
 #include "carl/core/logging.h"
 
-#ifdef __WIN
-	#pragma warning(push, 0)
-	#include <mpirxx.h>
-	#pragma warning(pop)
-#else
-	#include <gmpxx.h>
-#endif
-
 namespace smtrat
 {
 	
@@ -36,7 +28,6 @@ namespace smtrat
 			SMTRAT_LOG_ERROR("smtrat.my", "Value " << form.constraint().constantPart());
 			SMTRAT_LOG_ERROR("smtrat.my", "TABLEAU CREATE " << form.toString());
 			*/
-			
 			//Create Slack TVariable
 			TVariable tVar(VariableId , true);
 			VariableId ++;
@@ -57,9 +48,8 @@ namespace smtrat
 				}
 			}
 			
-			mpq_class _boundValue = mpq_class( form.constraint().constantPart() );
-			Bound b(_boundValue.get_d(),isUpperBound); 
-			cout << "Created Bound " << _boundValue.get_d() << " isUpperBound: " << isUpperBound << endl; 
+			Bound b(form.constraint().constantPart(),isUpperBound); 
+			cout << "Created Bound " << form.constraint().constantPart() << " isUpperBound: " << isUpperBound << endl; 
 			
 			formulaToBound[form] = b;
 			formToVar[form] = tVar;
@@ -73,7 +63,7 @@ namespace smtrat
 		}
 		
 		unsigned long number_of_variables = variablesInFormula.size();
-		matrix.setConstant(number_of_formulas,number_of_variables,0);
+		matrix.setConstant(number_of_formulas,number_of_variables,Rational(0));
 		
 		//Set correct size of vectors
 		row.resize(number_of_formulas);
@@ -96,10 +86,10 @@ namespace smtrat
 				
 				if(formula.constraint().hasVariable(var)){
 					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
-					mpq_class _coeffValue = mpq_class( coeff.lcoeff() );
+					Rational _coeffValue = Rational( coeff.lcoeff() );
 					
 					cout << coeff << "\t"; 
-					matrix(y,x) = _coeffValue.get_d();
+					matrix(y,x) = _coeffValue;
 				}
 				else{
 					cout << "0" <<  "\t";
@@ -112,13 +102,13 @@ namespace smtrat
 			cout << endl;
 		}	
 		
-		SMTRAT_LOG_ERROR("smtrat.my", "Matrix: " << endl << matrix);
+		//SMTRAT_LOG_ERROR("smtrat.my", "Matrix: " << endl << matrix);
 		
 		//Print the Tableau
 		print();
 	}
 	
-	void Tableau::pivotAndUpdate(TVariable v1, TVariable v2, double d)
+	void Tableau::pivotAndUpdate(TVariable v1, TVariable v2, Rational r)
 	{
 	}
 	

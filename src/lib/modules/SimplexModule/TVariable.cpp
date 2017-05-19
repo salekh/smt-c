@@ -9,8 +9,8 @@ namespace smtrat
 		id = pId;
 		isBasic = pIsBasic;
 		
-		upperBound = Bound(std::numeric_limits<double>::infinity(), true);
-		lowerBound = Bound(-std::numeric_limits<double>::infinity(), true);
+		upperBound = Bound(Rational(10000000), true);   //TODO real Infinity
+		lowerBound = Bound(Rational(-10000000), false);
 		
 		isSlack = true;
 	}
@@ -21,8 +21,8 @@ namespace smtrat
 		id = pId;
 		isBasic = pIsBasic;
 		
-		upperBound = Bound(std::numeric_limits<double>::infinity(), true);
-		lowerBound = Bound(-std::numeric_limits<double>::infinity(), true);
+		upperBound = Bound(Rational(10000000), true);   //TODO real Infinity
+		lowerBound = Bound(Rational(-10000000), false);
 		
 		isSlack=false;
 	}
