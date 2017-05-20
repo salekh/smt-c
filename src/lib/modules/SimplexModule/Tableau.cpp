@@ -108,6 +108,53 @@ namespace smtrat
 		print();
 	}
 	
+	
+	void Tableau::pivot(int rowPos, int columnPos)
+	{
+		//Swap variables in row and column vector
+		TVariable v = row[rowPos];
+		row[rowPos] = column[columnPos];
+		column[columnPos] = v;
+		
+		//TODO change isBasic and position in TVariable
+		
+		//Change values in matrix
+		Rational factor = Rational(matrix(rowPos,columnPos));
+		
+		for(int y=0;y<matrix.rows();y++){
+			
+			//For the row where the variable is swapped
+			if(rowPos == y){ 
+				for(int x=0;x<matrix.cols();x++){
+			
+					if(columnPos == x){
+						matrix(y,x) = Rational(1/factor);
+					}else{
+						matrix(y,x) /= Rational(-factor);
+					}
+					
+				}
+				
+			//For all other rows
+			}else{
+				
+				Rational factorRow = Rational(matrix(y,columnPos));
+				
+				for(int x=0;x<matrix.cols();x++){
+					
+					if(columnPos == x){
+						matrix(y,x) = Rational((1/factor)*factorRow);
+					}else{
+						matrix(y,x) -= Rational( (1/factor)*factorRow);
+					}
+				}
+			}
+			
+		}
+		
+	}
+	
+	
 	void Tableau::pivotAndUpdate(TVariable v1, TVariable v2, Rational r)
 	{
 	}

@@ -51,6 +51,8 @@ namespace smtrat
 					//methods as described in the paper
 					void pivotAndUpdate(TVariable v1, TVariable v2, Rational r);
 					
+					void pivot(int rowPos, int columnPos);
+					
 					void update(TVariable v, Bound b);
 					
 					
