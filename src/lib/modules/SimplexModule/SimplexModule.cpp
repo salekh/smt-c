@@ -44,8 +44,8 @@ namespace smtrat
 			tableau = Tableau(listFormulas);
 		}
 		
-		return tableau.activateRow(_subformula->formula());
-		//return true; // This should be adapted according to your implementation.
+		tableau.activateRow(_subformula->formula());
+		return true; // This should be adapted according to your implementation.
 	}
 	
 	template<class Settings>
@@ -69,18 +69,49 @@ namespace smtrat
 	{
 		while(true){
 			
-			std::function<bool(TVariable)> func = [](TVariable v)-> bool { return (v.getValue()<v.getLowerBound().value || v.getValue()>v.getUpperBound().value);  };
+			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
 			
-			TVariable* x = tableau.findSmallestVariable(func, true);
+			TVariable* x = tableau.findSmallestVariable(func, 0, true);
 			
 			if(x == nullptr){
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
 				
-				//do stuff
+				cout << "Needing change" << endl;
 				
+				if(x->getValue() < x->getLowerBound().value){
+					
+					cout << "Condition 1" << endl;
+					
+					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
+															|| (a<0 && v->getValue()>v->getUpperBound().value);  };
+					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
+					
+					if(b == nullptr){
+						return Answer::UNSAT;
+					}
+					cout << "Pivot and Update" << endl;
+					
+					tableau.pivotAndUpdate(x, b, x->getLowerBound().value);
+				}
 				
-				return Answer::UNKNOWN;
+				if(x->getValue() < x->getUpperBound().value){
+					cout << "Condition 2" << endl;
+					
+					func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
+															|| (a>0 && v->getValue()>v->getUpperBound().value);  };
+					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
+					
+					if(b == nullptr){
+						return Answer::UNSAT;
+					}
+					
+					cout << "Pivot and Update" << endl;
+					tableau.pivotAndUpdate(x, b, x->getUpperBound().value);
+				}
+				
+				tableau.print();
+				//return Answer::UNKNOWN;
 			}
 			
 		}

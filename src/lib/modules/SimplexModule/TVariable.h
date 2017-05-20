@@ -36,7 +36,7 @@ namespace smtrat
 				
 				//used in the method that finds the "problem set" of formulas
 				//helps to create the sets N- and N+ as described in the paper
-				int positionAsNonbasic;
+				int positionMatrixX, positionMatrixY;
 				
 			
 	public:
@@ -56,7 +56,16 @@ namespace smtrat
 				
 				int getId() { return id; };
 				
+				bool getIsBasic(){return isBasic; };
+				void setIsBasic(bool basic){this->isBasic = basic;}
+				
 				Rational getValue() { return value; };
+				void setValue(Rational r) { value = r; };
+				
+				void setPositionMatrixX(int positionMatrixX) {this->positionMatrixX = positionMatrixX;}
+				void setPositionMatrixY(int positionMatrixY) {this->positionMatrixY = positionMatrixY;}
+				int getPositionMatrixX() {return positionMatrixX;}
+				int getPositionMatrixY() {return positionMatrixY;}
 				
 				Bound& getUpperBound() { return upperBound; };
 				Bound& getLowerBound() { return lowerBound; };

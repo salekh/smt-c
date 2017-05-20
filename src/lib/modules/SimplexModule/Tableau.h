@@ -20,11 +20,11 @@ namespace smtrat
 				std::vector<bool> rowActive;
 				
 				//Position vector of the nonbasic variables
-				std::vector<TVariable> row;
+				std::vector<TVariable*> rowVars;
 				
 				
 				//Position vector of the basic variables
-				std::vector<TVariable> column;
+				std::vector<TVariable*> columnVars;
 				
 				
 				//Stores the bound for the "s" variable of the formula
@@ -49,7 +49,7 @@ namespace smtrat
 					Tableau(std::list<FormulaT> formulas);
 					
 					//methods as described in the paper
-					void pivotAndUpdate(TVariable v1, TVariable v2, Rational r);
+					void pivotAndUpdate(TVariable* v1, TVariable* v2, Rational r);
 					
 					void pivot(int rowPos, int columnPos);
 					
@@ -65,7 +65,7 @@ namespace smtrat
 					
 					//used as helper for checkCore, find smallest Variable that fullfills the function f.
 					// function f takes a TVariable and returns a bool
-					TVariable* findSmallestVariable(std::function<bool(TVariable)> func, bool isBasic);
+					TVariable* findSmallestVariable(std::function<bool(TVariable*,Rational)> func, int helper, bool isBasic);
 					
 					
 					//Helper function to convert

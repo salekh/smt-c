@@ -66,9 +66,9 @@ namespace smtrat
 		matrix.setConstant(number_of_formulas,number_of_variables,Rational(0));
 		
 		//Set correct size of vectors
-		row.resize(number_of_formulas);
+		rowVars.resize(number_of_formulas);
 		rowActive.resize(number_of_formulas);
-		column.resize(number_of_formulas);
+		columnVars.resize(number_of_formulas);
 		
 		//now row is active at init
 		std::fill(rowActive.begin(), rowActive.end(), false);
@@ -78,11 +78,13 @@ namespace smtrat
 		
 		for(auto formula : formulas){
 			x=0;
-			row[y] = formToVar[formula];
+			rowVars[y] = &formToVar[formula];
+			rowVars[y]->setPositionMatrixY(y);
 			
 			for(auto var : variablesInFormula){
 				
-				column[x] = varToTVar[var];
+				columnVars[x] = &varToTVar[var];
+				columnVars[x]->setPositionMatrixX(x);
 				
 				if(formula.constraint().hasVariable(var)){
 					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
@@ -112,11 +114,16 @@ namespace smtrat
 	void Tableau::pivot(int rowPos, int columnPos)
 	{
 		//Swap variables in row and column vector
-		TVariable v = row[rowPos];
-		row[rowPos] = column[columnPos];
-		column[columnPos] = v;
+		TVariable* v = rowVars[rowPos];
+		rowVars[rowPos] = columnVars[columnPos];
+		columnVars[columnPos] = v;
 		
-		//TODO change isBasic and position in TVariable
+		
+		//Change isBasic and position in TVariable
+		rowVars[rowPos]->setIsBasic(true);
+		columnVars[columnPos]->setIsBasic(false);
+		rowVars[rowPos]->setPositionMatrixY(columnVars[columnPos]->getPositionMatrixY());
+		columnVars[columnPos]->setPositionMatrixX(rowVars[rowPos]->getPositionMatrixX());
 		
 		//Change values in matrix
 		Rational factor = Rational(matrix(rowPos,columnPos));
@@ -155,8 +162,23 @@ namespace smtrat
 	}
 	
 	
-	void Tableau::pivotAndUpdate(TVariable v1, TVariable v2, Rational r)
+	void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, Rational v)
 	{
+		cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v;
+		
+		int i = xi->getPositionMatrixX();
+		int j = xj->getPositionMatrixY();
+		
+		Rational theta = v-xi->getValue()/matrix(i,j); //Sure i j?
+		xi->setValue(v);
+		xj->setValue(xj->getValue()+theta);
+		for(int k=0;k<matrix.rows();k++){
+			if(k != i){
+				rowVars[j]->setValue(rowVars[j]->getValue()+theta*matrix(k,j));
+			}
+		}
+		
+		pivot(i,j);
 	}
 	
 	void Tableau::update(TVariable v, Bound b)
@@ -166,7 +188,7 @@ namespace smtrat
 	bool Tableau::activateRow(FormulaT formula)
 	{
 		Bound c = formulaToBound[formula];
-		TVariable x = formToVar[formula];
+		TVariable &x = formToVar[formula];
 		int row = formulaToRow[formula];
 		rowActive[row] = true;
 		
@@ -192,34 +214,39 @@ namespace smtrat
 	
 	
 	
-	TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable)> func, bool isBasic)
+	TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, Rational)> func, int pos, bool isBasic)
 	{
 		int smallestId = -1;
 		TVariable* t = nullptr;
 		
 		if(isBasic){
 			
-			for(auto r : row){
-				if(func(r)){
-					if(r.getId() < smallestId){
-						smallestId = r.getId();
-						t = &r;
+			int i=0;
+			for(auto r : rowVars){
+				if(func(r, matrix(pos, i))){
+					if(r->getId() < smallestId){
+						smallestId = r->getId();
+						t = r;
 					}
 						
 				}
+				i++;
 			}
 			
 		}else{
 			
-			for(auto c : column){
-				if(func(c)){
-					if(c.getId() < smallestId){
-						smallestId = c.getId();
-						t = &c;
+			int i=0;
+			for(auto c : columnVars){
+				if(func(c, matrix(i, pos))){
+					if(c->getId() < smallestId){
+						smallestId = c->getId();
+						t = c;
 					}
 						
 				}
+				i++;
 			}
+			
 			
 		}
 		
@@ -237,15 +264,15 @@ namespace smtrat
 	void Tableau::print(){
 		
 		cout << "\t";
-		for(auto c : column){
-			cout << c.getName() << "\t";
+		for(auto c : columnVars){
+			cout << c->getName() << "\t";
 		}
 		cout << endl;
 		cout << "\t--------------" << endl;
 		
 		int a=0;
-		for(auto r : row){
-			cout <<  r.getName() << "|";
+		for(auto r : rowVars){
+			cout <<  r->getName() << "|";
 			
 			for(int i=0; i< matrix.cols();i++){
 				cout << "\t" << matrix(a,i);
@@ -257,17 +284,17 @@ namespace smtrat
 		
 		cout << endl;
 		
-		//Print Variables with value and bounds
+		//Print Basic Variables with value and bounds
 		for (auto const& x : formToVar)
 		{
 			TVariable v = x.second;
-			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << endl;
+			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << " isBasic " << v.getIsBasic() << " pos " << v.getPositionMatrixY() << endl;
 		}
-		//Print Variables with value and bounds
+		//Print Nonbasic Variables with value and bounds
 		for (auto const& x : varToTVar)
 		{
 			TVariable v = x.second;
-			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << endl;
+			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << " isBasic " << v.getIsBasic() << " pos " << v.getPositionMatrixX() << endl;
 		}
 	}
 }
