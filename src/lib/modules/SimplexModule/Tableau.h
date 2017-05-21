@@ -34,10 +34,10 @@ namespace smtrat
 				carl::FastMap<FormulaT,int> formulaToRow;
 				
 				//The "s" variable created for the formula
-				carl::FastMap<FormulaT,TVariable> formToVar;
+				carl::FastMap<FormulaT,TVariable*> formToVar;
 				
 				//Mapper between Formula and Tableau Variables
-				carl::FastMap<carl::Variable,TVariable> varToTVar;
+				carl::FastMap<carl::Variable,TVariable*> varToTVar;
 				
 				
 				
@@ -53,7 +53,7 @@ namespace smtrat
 					
 					void pivot(int rowPos, int columnPos);
 					
-					void update(TVariable v, Bound b);
+					void update(TVariable* v, Bound b);
 					
 					
 					//used by insertCore

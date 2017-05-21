@@ -52,13 +52,13 @@ namespace smtrat
 			cout << "Created Bound " << form.constraint().constantPart() << " isUpperBound: " << isUpperBound << endl; 
 			
 			formulaToBound[form] = b;
-			formToVar[form] = tVar;
+			formToVar[form] = &tVar;
 		}
 		
 		//Create TVariable for existing variables
 		for(auto var : variablesInFormula){
 			TVariable tVar(var,VariableId ,false);
-			varToTVar[var] = tVar;
+			varToTVar[var] = &tVar;
 			VariableId ++;
 		}
 		
@@ -78,12 +78,12 @@ namespace smtrat
 		
 		for(auto formula : formulas){
 			x=0;
-			rowVars[y] = &formToVar[formula];
+			rowVars[y] = formToVar[formula];
 			rowVars[y]->setPositionMatrixY(y);
 			
 			for(auto var : variablesInFormula){
 				
-				columnVars[x] = &varToTVar[var];
+				columnVars[x] = varToTVar[var];
 				columnVars[x]->setPositionMatrixX(x);
 				
 				if(formula.constraint().hasVariable(var)){
@@ -181,27 +181,52 @@ namespace smtrat
 		pivot(i,j);
 	}
 	
-	void Tableau::update(TVariable v, Bound b)
+	void Tableau::update(TVariable* x, Bound b)
 	{
+		cout << "Update" << endl;
+		
+		int column = x->getPositionMatrixX();
+		for(auto basic : rowVars){
+			int row = basic->getPositionMatrixY(); 
+			basic->setValue(basic->getValue() + matrix(column,row)*(b.value-x->getValue()));
+		}
+		
+		x->setValue(b.value);
 	}
 	
 	bool Tableau::activateRow(FormulaT formula)
 	{
 		Bound c = formulaToBound[formula];
-		TVariable &x = formToVar[formula];
+		TVariable* x = formToVar[formula];
 		int row = formulaToRow[formula];
 		rowActive[row] = true;
 		
 		if(c.upperBound){
+			
+			cout << "activateRow AssertUpper" << endl;
 			//AssertUpper
-			if(c.value >= x.getUpperBound().value){return true;}
-			if(c.value < x.getUpperBound().value){return false;}
-			x.getUpperBound().value = c.value;
-			//.....TODO add UPDATE
+			if(c.value >= x->getUpperBound().value){return true;}
+			if(c.value < x->getLowerBound().value){return false;}
+			cout << "Stayed in" << endl;
 			
-		}else{
+			x->changeUpperBound(Bound(c.value, true));
+			
+			if(x->getIsBasic()==false && x->getValue() > c.value){
+				update(x, c);
+			}
+			
+		}else {
+			cout << "activateRow AssertLower" << endl;
 			//AssertLower
+			if(c.value <= x->getLowerBound().value){return true;}
+			if(c.value > x->getUpperBound().value){return false;}
+			cout << "Stayed in" << endl;
 			
+			x->changeLowerBound(Bound(c.value, false));
+			
+			if(x->getIsBasic()==false && x->getValue() < c.value){
+				update(x, c);
+			}
 		}
 		
 		return true;
@@ -216,6 +241,7 @@ namespace smtrat
 	
 	TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, Rational)> func, int pos, bool isBasic)
 	{
+		//%TODO only check rows that are activated!!!
 		int smallestId = -1;
 		TVariable* t = nullptr;
 		
@@ -223,7 +249,9 @@ namespace smtrat
 			
 			int i=0;
 			for(auto r : rowVars){
+				cout << "Check Variable " << r->getName() << endl;
 				if(func(r, matrix(pos, i))){
+					cout << "Fullfills basic" << endl;
 					if(r->getId() < smallestId){
 						smallestId = r->getId();
 						t = r;
@@ -285,16 +313,16 @@ namespace smtrat
 		cout << endl;
 		
 		//Print Basic Variables with value and bounds
-		for (auto const& x : formToVar)
+		for (auto const x : formToVar)
 		{
-			TVariable v = x.second;
-			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << " isBasic " << v.getIsBasic() << " pos " << v.getPositionMatrixY() << endl;
+			TVariable* v = x.second;
+			cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << v->getPositionMatrixY() << endl;
 		}
 		//Print Nonbasic Variables with value and bounds
-		for (auto const& x : varToTVar)
+		for (auto const x : varToTVar)
 		{
-			TVariable v = x.second;
-			cout << v.getName() << " v:" << v.getValue() << " l:" << v.getLowerBound().value << " u:" << v.getUpperBound().value << " isBasic " << v.getIsBasic() << " pos " << v.getPositionMatrixX() << endl;
+			TVariable* v = x.second;
+			cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << v->getPositionMatrixX() << endl;
 		}
 	}
 }

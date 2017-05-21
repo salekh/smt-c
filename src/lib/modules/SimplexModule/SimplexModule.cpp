@@ -44,8 +44,9 @@ namespace smtrat
 			tableau = Tableau(listFormulas);
 		}
 		
-		tableau.activateRow(_subformula->formula());
-		return true; // This should be adapted according to your implementation.
+		bool result = tableau.activateRow(_subformula->formula());
+		cout << "AddCore returns " << result << endl;
+		return result;
 	}
 	
 	template<class Settings>
@@ -74,6 +75,7 @@ namespace smtrat
 			TVariable* x = tableau.findSmallestVariable(func, 0, true);
 			
 			if(x == nullptr){
+				cout << "x is nullptr" << endl;
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
 				
