@@ -68,9 +68,10 @@ namespace smtrat
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
-		//Used only for testing to end the loop after 3 iterations
-		int limit = 3;
+		//Used only for testing! To prevent an infinite loop!
+		int limit = 10;
 		
+		//Is doing exactly what is described in the paper Check() method
 		while(true){
 			
 			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
@@ -95,8 +96,8 @@ namespace smtrat
 					if(b == nullptr){
 						return Answer::UNSAT;
 					}
-					cout << "Pivot and Update" << endl;
 					
+					cout << "Pivot and Update" << endl;
 					tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
 				}
 				
@@ -119,6 +120,7 @@ namespace smtrat
 				//return Answer::UNKNOWN;
 				
 				if(limit == 0){
+					cout << "WARNING: INFINITE LOOP BREAK" << endl;
 					break;
 				}
 				limit--;

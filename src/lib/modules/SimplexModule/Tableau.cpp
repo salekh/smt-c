@@ -24,11 +24,6 @@ namespace smtrat
 			//adding the variables into the accumulator set
 			variablesInFormula.insert(vs.begin(),vs.end());
 
-			/*
-			SMTRAT_LOG_ERROR("smtrat.my", "Constraint Value " << form.constraint().lhs().toString());
-			SMTRAT_LOG_ERROR("smtrat.my", "Value " << form.constraint().constantPart());
-			SMTRAT_LOG_ERROR("smtrat.my", "TABLEAU CREATE " << form.toString());
-			*/
 			//Create Slack TVariable
 			TVariable* tVar = new TVariable(VariableId , true);
 			VariableId ++;
@@ -155,7 +150,7 @@ namespace smtrat
 					if(columnPos == x){
 						matrix(y,x) = Rational((1/factor)*factorRow);
 					}else{
-						matrix(y,x) += Rational( (matrix(rowPos,x)/factor)*factorRow);
+						matrix(y,x) -= Rational( (matrix(rowPos,x)/factor)*factorRow);
 					}
 				}
 			}
@@ -176,14 +171,12 @@ namespace smtrat
 		cout << " aij " << matrix(j,i) << " " << matrix(i,j) << endl;
 		
 		
-		
 		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); //Sure i j?
-		
+		xi->setValue(Rational(v));
+		xj->setValue(xj->getValue()+theta);
 		
 		cout <<  "theta " << theta << endl;
-		xi->setValue(Rational(v));
 		cout << xi->getName() << " = " << xi->getValue() << endl;
-		xj->setValue(xj->getValue()+theta);
 		cout << xj->getName() << " = " << xj->getValue() << endl;
 		
 		for(int k=0;k<matrix.rows();k++){
@@ -216,9 +209,9 @@ namespace smtrat
 		rowActive[row] = true;
 		
 		if(c.upperBound){
-			
-			cout << "activateRow AssertUpper" << endl;
 			//AssertUpper
+			cout << "activateRow AssertUpper" << endl;
+			
 			if(c.value >= x->getUpperBound().value){return true;}
 			if(c.value < x->getLowerBound().value){return false;}
 			cout << "Stayed in" << endl;
@@ -230,8 +223,9 @@ namespace smtrat
 			}
 			
 		}else {
-			cout << "activateRow AssertLower" << endl;
 			//AssertLower
+			cout << "activateRow AssertLower" << endl;
+			
 			if(c.value <= x->getLowerBound().value){return true;}
 			if(c.value > x->getUpperBound().value){return false;}
 			cout << "Stayed in" << endl;
@@ -255,7 +249,7 @@ namespace smtrat
 	
 	TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, Rational)> func, int pos, bool isBasic)
 	{
-		//%TODO only check rows that are activated!!!
+		//TODO only check rows that are activated!!!
 		int smallestId = INT_MAX;
 		TVariable* t = nullptr;
 		
@@ -277,7 +271,6 @@ namespace smtrat
 			
 		}else{
 			
-			cout << "WAWA" << endl;
 			int i=0;
 			for(auto c : columnVars){
 				if(func(c, matrix(pos, i))){
@@ -289,8 +282,6 @@ namespace smtrat
 				}
 				i++;
 			}
-			
-			cout << "BLABLA" << endl;
 			
 			
 		}

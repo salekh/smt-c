@@ -64,8 +64,10 @@ namespace smtrat
 					void deactivateRow(FormulaT formula);
 					
 					
-					//used as helper for checkCore, find smallest Variable that fullfills the function f.
-					// function f takes a TVariable and returns a bool
+					//used as helper function for checkCore, finds smallest Variable that fullfills the function f.
+					//isBasic: weather the function is called on all basic or all nonbasic variables.
+					// function f takes a TVariable, a matrix value and returns a bool
+					// returns a TVariable if found, otherwise a nullpointer
 					TVariable* findSmallestVariable(std::function<bool(TVariable*,Rational)> func, int helper, bool isBasic);
 					
 					
