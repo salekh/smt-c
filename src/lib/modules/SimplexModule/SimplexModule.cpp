@@ -68,6 +68,9 @@ namespace smtrat
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
+		//Used only for testing to end the loop after 3 iterations
+		int limit = 3;
+		
 		while(true){
 			
 			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
@@ -86,22 +89,22 @@ namespace smtrat
 					cout << "Condition 1" << endl;
 					
 					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
-															|| (a<0 && v->getValue()>v->getUpperBound().value);  };
-					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
+															|| (a<0 && v->getValue()>v->getLowerBound().value);  };
+					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixX(), false);
 					
 					if(b == nullptr){
 						return Answer::UNSAT;
 					}
 					cout << "Pivot and Update" << endl;
 					
-					tableau.pivotAndUpdate(x, b, x->getLowerBound().value);
+					tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
 				}
 				
-				if(x->getValue() < x->getUpperBound().value){
+				if(x->getValue() > x->getUpperBound().value){
 					cout << "Condition 2" << endl;
 					
 					func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
-															|| (a>0 && v->getValue()>v->getUpperBound().value);  };
+															|| (a>0 && v->getValue()>v->getLowerBound().value);  };
 					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 					
 					if(b == nullptr){
@@ -109,11 +112,16 @@ namespace smtrat
 					}
 					
 					cout << "Pivot and Update" << endl;
-					tableau.pivotAndUpdate(x, b, x->getUpperBound().value);
+					tableau.pivotAndUpdate(x, b, Rational(x->getUpperBound().value));
 				}
 				
 				tableau.print();
 				//return Answer::UNKNOWN;
+				
+				if(limit == 0){
+					break;
+				}
+				limit--;
 			}
 			
 		}

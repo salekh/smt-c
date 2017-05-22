@@ -12,7 +12,7 @@ namespace smtrat
 			
 			private:
 				
-				int id;
+				int id=0;
 				
 				carl::Variable original;
 				
@@ -36,7 +36,8 @@ namespace smtrat
 				
 				//used in the method that finds the "problem set" of formulas
 				//helps to create the sets N- and N+ as described in the paper
-				int positionMatrixX, positionMatrixY;
+				int positionMatrixX=-1;
+				int positionMatrixY=-1;
 				
 			
 	public:

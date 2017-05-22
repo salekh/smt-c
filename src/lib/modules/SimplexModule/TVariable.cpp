@@ -29,11 +29,11 @@ namespace smtrat
 	
 	
 	void TVariable::changeUpperBound(Bound b){
-		
+		upperBound = b;
 	}
 	
 	void TVariable::changeLowerBound(Bound b){
-		
+		lowerBound = b;
 	}
 	
 	void TVariable::backtrack(){

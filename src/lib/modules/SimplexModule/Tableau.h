@@ -12,8 +12,9 @@ namespace smtrat
         {
 			
 			
-			private:
+		private:
 			
+				// (Basic aka rows, NonBasic aka columns)
 				Eigen::Matrix<Rational, Eigen::Dynamic, Eigen::Dynamic> matrix;
 				
 				//which rows were actiavted by adding/removing formulas

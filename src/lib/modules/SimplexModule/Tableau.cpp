@@ -18,6 +18,7 @@ namespace smtrat
 		
 		for(auto form : formulas)
 		{
+			cout << "Loading " << form.constraint() << " l " << form.constraint().lhs().constantPart() <<  endl;
 			//Get the variables in the formula
 			std::set<carl::Variable> vs = form.variables();
 			//adding the variables into the accumulator set
@@ -29,7 +30,7 @@ namespace smtrat
 			SMTRAT_LOG_ERROR("smtrat.my", "TABLEAU CREATE " << form.toString());
 			*/
 			//Create Slack TVariable
-			TVariable tVar(VariableId , true);
+			TVariable* tVar = new TVariable(VariableId , true);
 			VariableId ++;
 			
 			ConstraintT constraint = form.constraint();
@@ -48,17 +49,17 @@ namespace smtrat
 				}
 			}
 			
-			Bound b(form.constraint().constantPart(),isUpperBound); 
-			cout << "Created Bound " << form.constraint().constantPart() << " isUpperBound: " << isUpperBound << endl; 
+			Bound b(-constraint.constantPart(),isUpperBound); 
+			cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
 			
 			formulaToBound[form] = b;
-			formToVar[form] = &tVar;
+			formToVar[form] = tVar;
 		}
 		
 		//Create TVariable for existing variables
 		for(auto var : variablesInFormula){
-			TVariable tVar(var,VariableId ,false);
-			varToTVar[var] = &tVar;
+			TVariable* tVar = new TVariable(var,VariableId ,false);
+			varToTVar[var] = tVar;
 			VariableId ++;
 		}
 		
@@ -113,6 +114,8 @@ namespace smtrat
 	
 	void Tableau::pivot(int rowPos, int columnPos)
 	{
+		cout << "pivot!" << endl;
+		
 		//Swap variables in row and column vector
 		TVariable* v = rowVars[rowPos];
 		rowVars[rowPos] = columnVars[columnPos];
@@ -152,7 +155,7 @@ namespace smtrat
 					if(columnPos == x){
 						matrix(y,x) = Rational((1/factor)*factorRow);
 					}else{
-						matrix(y,x) -= Rational( (1/factor)*factorRow);
+						matrix(y,x) += Rational( (matrix(rowPos,x)/factor)*factorRow);
 					}
 				}
 			}
@@ -164,17 +167,28 @@ namespace smtrat
 	
 	void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, Rational v)
 	{
-		cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v;
+		cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
 		
-		int i = xi->getPositionMatrixX();
-		int j = xj->getPositionMatrixY();
+		int i = xi->getPositionMatrixY();
+		int j = xj->getPositionMatrixX();
 		
-		Rational theta = v-xi->getValue()/matrix(i,j); //Sure i j?
-		xi->setValue(v);
+		cout << "i " << i << " j " << j;
+		cout << " aij " << matrix(j,i) << " " << matrix(i,j) << endl;
+		
+		
+		
+		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); //Sure i j?
+		
+		
+		cout <<  "theta " << theta << endl;
+		xi->setValue(Rational(v));
+		cout << xi->getName() << " = " << xi->getValue() << endl;
 		xj->setValue(xj->getValue()+theta);
+		cout << xj->getName() << " = " << xj->getValue() << endl;
+		
 		for(int k=0;k<matrix.rows();k++){
 			if(k != i){
-				rowVars[j]->setValue(rowVars[j]->getValue()+theta*matrix(k,j));
+				rowVars[k]->setValue(rowVars[k]->getValue()+theta*matrix(k,j));
 			}
 		}
 		
@@ -242,15 +256,15 @@ namespace smtrat
 	TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, Rational)> func, int pos, bool isBasic)
 	{
 		//%TODO only check rows that are activated!!!
-		int smallestId = -1;
+		int smallestId = INT_MAX;
 		TVariable* t = nullptr;
 		
 		if(isBasic){
 			
 			int i=0;
 			for(auto r : rowVars){
-				cout << "Check Variable " << r->getName() << endl;
-				if(func(r, matrix(pos, i))){
+				cout << "Check Variable " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value << endl;
+				if(func(r, matrix(i, pos))){
 					cout << "Fullfills basic" << endl;
 					if(r->getId() < smallestId){
 						smallestId = r->getId();
@@ -263,9 +277,10 @@ namespace smtrat
 			
 		}else{
 			
+			cout << "WAWA" << endl;
 			int i=0;
 			for(auto c : columnVars){
-				if(func(c, matrix(i, pos))){
+				if(func(c, matrix(pos, i))){
 					if(c->getId() < smallestId){
 						smallestId = c->getId();
 						t = c;
@@ -274,6 +289,8 @@ namespace smtrat
 				}
 				i++;
 			}
+			
+			cout << "BLABLA" << endl;
 			
 			
 		}
