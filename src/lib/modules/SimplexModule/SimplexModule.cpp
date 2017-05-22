@@ -1,6 +1,8 @@
 /**
  * @file Simplex.cpp
- * @author YOUR NAME <YOUR EMAIL ADDRESS>
+ * @author Sanchit Alekh <sanchit.alekh@rwth-aachen.de>
+ * @author Karsten Jungnitsch <karsten.jungnitsch@rwth-aachen.de>
+ * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
  *
  * @version 2017-05-08
  * Created on 2017-05-08.
@@ -8,24 +10,24 @@
 
 #include "SimplexModule.h"
 
-namespace smtrat
-{
+ namespace smtrat
+ {
 	template<class Settings>
-	SimplexModule<Settings>::SimplexModule(const ModuleInput* _formula, RuntimeSettings*, Conditionals& _conditionals, Manager* _manager):
-		Module( _formula, _conditionals, _manager )
+ 	SimplexModule<Settings>::SimplexModule(const ModuleInput* _formula, RuntimeSettings*, Conditionals& _conditionals, Manager* _manager):
+ 	Module( _formula, _conditionals, _manager )
 #ifdef SMTRAT_DEVOPTION_Statistics
-		, mStatistics(Settings::moduleName)
+ 	, mStatistics(Settings::moduleName)
 #endif
-	{}
-	
+ 	{}
+
 	template<class Settings>
-	SimplexModule<Settings>::~SimplexModule()
-	{}
-	
+ 	SimplexModule<Settings>::~SimplexModule()
+ 	{}
+
 	template<class Settings>
-	bool SimplexModule<Settings>::informCore( const FormulaT& _constraint )
-	{
-		listFormulas.push_back(_constraint);
+ 	bool SimplexModule<Settings>::informCore( const FormulaT& _constraint )
+ 	{
+ 		listFormulas.push_back(_constraint);
 		return true; // This should be adapted according to your implementation.
 	}
 	
@@ -90,44 +92,44 @@ namespace smtrat
 					cout << "Condition 1" << endl;
 					
 					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
-															|| (a<0 && v->getValue()>v->getLowerBound().value);  };
-					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixX(), false);
-					
-					if(b == nullptr){
-						return Answer::UNSAT;
+						|| (a<0 && v->getValue()>v->getLowerBound().value);  };
+						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixX(), false);
+
+						if(b == nullptr){
+							return Answer::UNSAT;
+						}
+
+						cout << "Pivot and Update!" << endl;
+						tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
 					}
-					
-					cout << "Pivot and Update" << endl;
-					tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
-				}
-				
-				if(x->getValue() > x->getUpperBound().value){
-					cout << "Condition 2" << endl;
-					
-					func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
-															|| (a>0 && v->getValue()>v->getLowerBound().value);  };
-					TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
-					
-					if(b == nullptr){
-						return Answer::UNSAT;
+
+					if(x->getValue() > x->getUpperBound().value){
+						cout << "Condition 2" << endl;
+
+						func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
+							|| (a>0 && v->getValue()>v->getLowerBound().value);  };
+							TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
+
+							if(b == nullptr){
+								return Answer::UNSAT;
+							}
+
+							cout << "Pivot and Update!" << endl;
+							tableau.pivotAndUpdate(x, b, Rational(x->getUpperBound().value));
+						}
+
+						tableau.print();
+						//return Answer::UNKNOWN;
+
+						if(limit == 0){
+							cout << "WARNING: INFINITE LOOP BREAK" << endl;
+							break;
+						}
+						limit--;
 					}
-					
-					cout << "Pivot and Update" << endl;
-					tableau.pivotAndUpdate(x, b, Rational(x->getUpperBound().value));
+
 				}
 				
-				tableau.print();
-				//return Answer::UNKNOWN;
-				
-				if(limit == 0){
-					cout << "WARNING: INFINITE LOOP BREAK" << endl;
-					break;
-				}
-				limit--;
-			}
-			
-		}
-		// Your code.
 		return Answer::UNKNOWN; // This should be adapted according to your implementation.
 	}
 }
