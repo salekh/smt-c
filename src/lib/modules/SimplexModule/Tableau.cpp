@@ -13,33 +13,45 @@
  {
  	
  	Tableau::Tableau(){}
+
+ 	/* Method to create Tableau
+	*  Receives a list of formulas from the SAT Solver
+	*  
+	*  The tableau has the following structure:
+	*  Each formula accumulates one row
+	*  One column for each variable in the set of formulas
+	*/
  	
- 	Tableau::Tableau(std::list<FormulaT> formulas){
+ 	Tableau::Tableau(std::list<FormulaT> formulaList)
+ 	{
  		
  		int VariableId = 0;
- 		
-		//accumulator set for all the variables in the formulae 
+
+		//accumulator set for all the variables in the formulas 		
  		std::set<carl::Variable> variablesInFormula;
- 		unsigned long number_of_formulas = formulas.size();
+ 		unsigned long number_of_formulas = formulaList.size();
 
  		SMTRAT_LOG_ERROR("smtrat.my", number_of_formulas << "Formulas");
  		
- 		for(auto form : formulas)
+ 		for(auto formula : formulaList)
  		{
- 			cout << "Loading " << form.constraint() << " l " << form.constraint().lhs().constantPart() <<  endl;
+ 			SMTRAT_LOG_ERROR("smtrat.my", "Loading " << formula.constraint() << " l " << formula.constraint().lhs().constantPart());
+ 			//cout << "Loading " << formula.constraint() << " l " << formula.constraint().lhs().constantPart() <<  endl;
 			//Get the variables in the formula
- 			std::set<carl::Variable> vs = form.variables();
+ 			std::set<carl::Variable> varList = formula.variables();
 			//adding the variables into the accumulator set
- 			variablesInFormula.insert(vs.begin(),vs.end());
+ 			variablesInFormula.insert(varList.begin(),varList.end());
 
+ 			//TODO Why "Slack" ?!
 			//Create Slack Variable of TVariable class
  			TVariable* tVar = new TVariable(VariableId , true);
  			VariableId ++;
  			
- 			ConstraintT constraint = form.constraint();
+ 			ConstraintT constraint = formula.constraint();
  			
-			//Check the constraint whether it is >= or <= to create upper or lower Bound
- 			bool isUpperBound;
+			//Check the constraint whether it is >= (lower bound) or <= (upper bound) 
+			bool isUpperBound;
+ 			
  			switch( constraint.relation() )
  			{
  				case carl::Relation::GEQ:
@@ -51,18 +63,23 @@
  					isUpperBound = true;
  				}
  			}
+
+ 			//Create Bound as the negative constant part of the formula.
+ 			//E.g x + y -5 <= 0
+ 			//Bound is +5
+ 			Bound bound(-constraint.constantPart(),isUpperBound); 
  			
- 			Bound b(-constraint.constantPart(),isUpperBound); 
- 			cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
+ 			SMTRAT_LOG_ERROR("smtrat.my", "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound)
+ 			//cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
  			
- 			formulaToBound[form] = b;
- 			formToVar[form] = tVar;
+ 			formulaToBound[formula] = bound;
+ 			formToVar[formula] = tVar;
  		}
  		
 		//Create TVariable for existing variables
- 		for(auto var : variablesInFormula){
- 			TVariable* tVar = new TVariable(var,VariableId ,false);
- 			varToTVar[var] = tVar;
+ 		for(auto variable : variablesInFormula){
+ 			TVariable* tVar = new TVariable(variable,VariableId ,false);
+ 			varToTVar[variable] = tVar;
  			VariableId ++;
  		}
  		
@@ -79,8 +96,11 @@
 
 		//get the coefficients of each variable in each formula
  		int x=0;int y=0;
+
+ 		//Create Tableau
+ 		//For each formula add the coefficient of each variable 
  		
- 		for(auto formula : formulas){
+ 		for(auto formula : formulaList){
  			x=0;
  			rowVars[y] = formToVar[formula];
  			rowVars[y]->setPositionMatrixY(y);
@@ -90,22 +110,25 @@
  				columnVars[x] = varToTVar[var];
  				columnVars[x]->setPositionMatrixX(x);
  				
+ 				//If the formula contains the variable, set the Tableau entry to the coefficient
+ 				//If not, set entry to 0
  				if(formula.constraint().hasVariable(var)){
  					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
  					Rational _coeffValue = Rational( coeff.lcoeff() );
  					
- 					cout << coeff << "\t"; 
+ 					//cout << coeff << "\t"; 
+ 					SMTRAT_LOG_ERROR("smtrat.my",coeff << "\t");
  					matrix(y,x) = _coeffValue;
- 				}
- 				else{
- 					cout << "0" <<  "\t";
+ 				} else {
+ 					//cout << "0" <<  "\t";
+ 					SMTRAT_LOG_ERROR("smtrat.my", "0" <<  "\t");
  				}
  				
  				x++;
  			}
  			
  			y++;
- 			cout << endl;
+ 			//cout << endl;
  		}	
  		
 		//SMTRAT_LOG_ERROR("smtrat.my", "Matrix: " << endl << matrix);
@@ -113,11 +136,25 @@
  		print();
  	}
  	
+ 	/* This function swaps a basic variable with a non basic variable
+ 	*  It swaps the positions and updates the
+ 	*  new coefficients of the rearranged formulas
+ 	*  Example:
+ 	*  
+ 	*  1*x + 1*y = s1
+ 	*  Row: (1,1)
+	*
+ 	*  Pivot x with s1
+	*
+ 	*  x = s1 - 1*y
+ 	*  Row: (1,-1)
+ 	*/
  	
  	void Tableau::pivot(int rowPos, int columnPos)
  	{
- 		cout << "Pivoting Starts!" << endl;
- 		
+ 		//cout << "Pivoting Starts!" << endl;
+ 		SMTRAT_LOG_ERROR("smtrat.my", "Pivoting Starts!");
+
 		//Swap variables in row and column vector
  		TVariable* v = rowVars[rowPos];
  		rowVars[rowPos] = columnVars[columnPos];
@@ -175,15 +212,17 @@
 	 
 	 void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, Rational v)
 	 {
-	 	cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
-	 	
+	 	//cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
+	 	SMTRAT_LOG_ERROR("smtrat.my", "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v)
+
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
 	 	
-	 	cout << "i " << i << " j " << j;
+	 	//cout << "i " << i << " j " << j;
+	 	SMTRAT_LOG_ERROR("smtrat.my", "i " << i << " j " << j);
 	 	cout << " aij " << matrix(j,i) << " " << matrix(i,j) << endl;
 	 	
-	 	
+	 	//
 		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); //Sure i j?
 		xi->setValue(Rational(v));
 		xj->setValue(xj->getValue()+theta);
