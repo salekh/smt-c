@@ -89,7 +89,7 @@
 		//Set correct size of vectors
  		rowVars.resize(number_of_formulas);
  		rowActive.resize(number_of_formulas);
- 		columnVars.resize(number_of_formulas);
+ 		columnVars.resize(number_of_variables);
  		
 		//make sure the row is active at init
  		std::fill(rowActive.begin(), rowActive.end(), false);
@@ -116,22 +116,22 @@
  					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
  					Rational _coeffValue = Rational( coeff.lcoeff() );
  					
- 					//cout << coeff << "\t"; 
- 					SMTRAT_LOG_ERROR("smtrat.my",coeff << "\t");
+ 					cout << coeff << "\t"; 
+ 					//SMTRAT_LOG_ERROR("smtrat.my",coeff << "\t");
  					matrix(y,x) = _coeffValue;
  				} else {
- 					//cout << "0" <<  "\t";
- 					SMTRAT_LOG_ERROR("smtrat.my", "0" <<  "\t");
+ 					cout << "0" <<  "\t";
+ 					//SMTRAT_LOG_ERROR("smtrat.my", "0" <<  "\t");
  				}
  				
  				x++;
  			}
  			
  			y++;
- 			//cout << endl;
+			cout << endl;
  		}	
  		
-		//SMTRAT_LOG_ERROR("smtrat.my", "Matrix: " << endl << matrix);
+		SMTRAT_LOG_ERROR("smtrat.my", "Print Matrix");
 		//Print the Tableau
  		print();
  	}
@@ -301,8 +301,32 @@
 	 }
 	 
 	 
+	 void Tableau::createCheckpoint(){
+		 for(auto r : rowVars){
+			 r->save();
+		 }
+		 
+		 for(auto c : columnVars){
+			 c->save();
+		 }
+	 }
+	 
+	 
 	 void Tableau::deactivateRow(FormulaT formula)
 	 {
+		 int row = formulaToRow[formula];
+		 rowActive[row] = false;
+		 
+		 //rowVars[row]->resetBounds();
+		 
+		 //Load the variable values of the last succesfull sat test (checkpoint)
+		 for(auto r : rowVars){
+			 r->load();
+		 }
+		 
+		 for(auto c : columnVars){
+			 c->load();
+		 }
 	 }
 	 
 	 
@@ -315,10 +339,10 @@
 	 	
 	 	if(isBasic){
 	 		
-	 		int i=0;
-	 		for(auto r : rowVars){
+			for(int i=0;i<rowVars.size();i++){
+				TVariable* r = rowVars[i];
 	 			cout << "Check Variable " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value << endl;
-	 			if(func(r, matrix(i, pos))){
+	 			if(rowActive[i] && func(r, matrix(i, pos))){
 	 				cout << "Fullfills basic" << endl;
 	 				if(r->getId() < smallestId){
 	 					smallestId = r->getId();
@@ -326,13 +350,12 @@
 	 				}
 	 				
 	 			}
-	 			i++;
 	 		}
 	 		
 	 	}else{
 	 		
-	 		int i=0;
-	 		for(auto c : columnVars){
+			for(int i=0;i<columnVars.size();i++){
+				TVariable* c = columnVars[i];
 	 			if(func(c, matrix(pos, i))){
 	 				if(c->getId() < smallestId){
 	 					smallestId = c->getId();
@@ -340,7 +363,6 @@
 	 				}
 	 				
 	 			}
-	 			i++;
 	 		}
 	 		
 	 		

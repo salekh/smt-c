@@ -63,6 +63,9 @@ namespace smtrat
 					//used by removeCore
 					void deactivateRow(FormulaT formula);
 					
+					//Used by check, used for Backtracking described in the paper
+					void createCheckpoint();
+					
 					
 					//used as helper function for checkCore, finds smallest Variable that fullfills the function f.
 					//isBasic: weather the function is called on all basic or all nonbasic variables.

@@ -82,6 +82,9 @@
 			
 			if(x == nullptr){
 				cout << "x is nullptr" << endl;
+				//Creates Checkpoint, needed for backtracking
+				tableau.createCheckpoint();
+				
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
 				

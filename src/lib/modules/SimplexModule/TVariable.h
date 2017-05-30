@@ -63,6 +63,10 @@ namespace smtrat
 				Rational getValue() { return value; };
 				void setValue(Rational r) { value = r; };
 				
+				//Stores and load value/bounds
+				void save();
+				void load();
+				
 				void setPositionMatrixX(int positionMatrixX) {this->positionMatrixX = positionMatrixX;}
 				void setPositionMatrixY(int positionMatrixY) {this->positionMatrixY = positionMatrixY;}
 				int getPositionMatrixX() {return positionMatrixX;}
@@ -70,6 +74,7 @@ namespace smtrat
 				
 				Bound& getUpperBound() { return upperBound; };
 				Bound& getLowerBound() { return lowerBound; };
+				
 				
 				std::string getName();
 		};

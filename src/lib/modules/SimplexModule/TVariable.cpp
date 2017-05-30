@@ -27,6 +27,23 @@ namespace smtrat
 		isSlack=false;
 	}
 	
+	void TVariable::save(){ 
+		stackUpperBound.push(upperBound);
+		stackLowerBound.push(lowerBound);
+		lastValue = value; 
+		
+	}
+		
+	void TVariable::load(){ 
+		value = lastValue; 
+			
+		upperBound = stackUpperBound.top();
+		stackUpperBound.pop();
+		
+		lowerBound = stackLowerBound.top();
+		stackLowerBound.pop();
+					
+	}
 	
 	void TVariable::changeUpperBound(Bound b){
 		upperBound = b;
