@@ -50,29 +50,52 @@
  			ConstraintT constraint = formula.constraint();
  			
 			//Check the constraint whether it is >= (lower bound) or <= (upper bound) 
-			bool isUpperBound;
+			
+			std::vector<Bound> boundSet;
  			
  			switch( constraint.relation() )
  			{
+				case carl::Relation::EQ:
+				{
+					cout << "EQ";
+					
+					Bound bound1(-constraint.constantPart(),false);
+					Bound bound2(-constraint.constantPart(),true);
+					boundSet = {bound1, bound2};
+					break;
+				}
+				
  				case carl::Relation::GEQ:
  				{
- 					isUpperBound = false;
+					cout << "GEQ";
+					
+					Bound bound(-constraint.constantPart(),false);
+					boundSet = {bound};
+					break;
+					
  				}
  				case carl::Relation::LEQ:
  				{
- 					isUpperBound = true;
+					cout << "LEQ";
+					
+					Bound bound(-constraint.constantPart(),true);
+					boundSet = {bound};
+					break;
+ 					
  				}
+
+				
  			}
 
  			//Create Bound as the negative constant part of the formula.
  			//E.g x + y -5 <= 0
  			//Bound is +5
- 			Bound bound(-constraint.constantPart(),isUpperBound); 
+ 			 
  			
- 			SMTRAT_LOG_ERROR("smtrat.my", "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound)
+ 			SMTRAT_LOG_ERROR("smtrat.my", "Created Bound " << -constraint.constantPart() );
  			//cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
  			
- 			formulaToBound[formula] = bound;
+ 			formulaToBound[formula] = boundSet;
  			formToVar[formula] = tVar;
  		}
  		
@@ -262,39 +285,44 @@
 	 
 	 bool Tableau::activateRow(FormulaT formula)
 	 {
-	 	Bound c = formulaToBound[formula];
+	 	std::vector<Bound> boundSet = formulaToBound[formula];
 	 	TVariable* x = formToVar[formula];
 	 	int row = formulaToRow[formula];
 	 	rowActive[row] = true;
 	 	
-	 	if(c.upperBound){
-			//AssertUpper (for upper bounds)
-	 		cout << "activateRow AssertUpper" << endl;
-	 		
-	 		if(c.value >= x->getUpperBound().value){return true;}
-	 		if(c.value < x->getLowerBound().value){return false;}
-	 		cout << "Stayed in" << endl;
-	 		
-	 		x->changeUpperBound(Bound(c.value, true));
-	 		
-	 		if(x->getIsBasic()==false && x->getValue() > c.value){
-	 			update(x, c);
-	 		}
-	 		
-	 	}else {
-			//AssertLower (for lower bounds)
-	 		cout << "activateRow AssertLower" << endl;
-	 		
-	 		if(c.value <= x->getLowerBound().value){return true;}
-	 		if(c.value > x->getUpperBound().value){return false;}
-	 		cout << "Stayed in" << endl;
-	 		
-	 		x->changeLowerBound(Bound(c.value, false));
-	 		
-	 		if(x->getIsBasic()==false && x->getValue() < c.value){
-	 			update(x, c);
-	 		}
-	 	}
+		//loop runs twice for "=", otherwise only once
+		for(auto c: boundSet){
+			
+			if(c.upperBound){
+				//AssertUpper (for upper bounds)
+				cout << "activateRow AssertUpper" << endl;
+				
+				if(c.value >= x->getUpperBound().value){return true;}
+				if(c.value < x->getLowerBound().value){return false;}
+				cout << "Stayed in" << endl;
+				
+				x->changeUpperBound(Bound(c.value, true));
+				
+				if(x->getIsBasic()==false && x->getValue() > c.value){
+					update(x, c);
+				}
+				
+			}else {
+				//AssertLower (for lower bounds)
+				cout << "activateRow AssertLower" << endl;
+				
+				if(c.value <= x->getLowerBound().value){return true;}
+				if(c.value > x->getUpperBound().value){return false;}
+				cout << "Stayed in" << endl;
+				
+				x->changeLowerBound(Bound(c.value, false));
+				
+				if(x->getIsBasic()==false && x->getValue() < c.value){
+					update(x, c);
+				}
+			}
+		}
+
 	 	
 	 	return true;
 	 }
