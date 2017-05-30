@@ -96,7 +96,7 @@
 					
 					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
 						|| (a<0 && v->getValue()>v->getLowerBound().value);  };
-						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixX(), false);
+						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 						if(b == nullptr){
 							return Answer::UNSAT;

@@ -419,6 +419,13 @@
 	 	
 	 	int a=0;
 	 	for(auto r : rowVars){
+			
+			if(rowActive[a]){
+				cout << "-";
+			}else{
+				cout << " ";
+			}
+			
 	 		cout <<  r->getName() << "|";
 	 		
 	 		for(int i=0; i< matrix.cols();i++){
@@ -435,13 +442,15 @@
 	 	for (auto const x : formToVar)
 	 	{
 	 		TVariable* v = x.second;
-	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << v->getPositionMatrixY() << endl;
+			int pos = v->getIsBasic() ? v->getPositionMatrixY() : v->getPositionMatrixX();
+	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << pos << endl;
 	 	}
 		//Print Nonbasic Variables with value and bounds
 	 	for (auto const x : varToTVar)
 	 	{
 	 		TVariable* v = x.second;
-	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << v->getPositionMatrixX() << endl;
+			int pos = v->getIsBasic() ? v->getPositionMatrixY() : v->getPositionMatrixX();
+	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << pos << endl;
 	 	}
 	 }
 	}
