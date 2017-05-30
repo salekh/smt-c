@@ -104,6 +104,7 @@
  			x=0;
  			rowVars[y] = formToVar[formula];
  			rowVars[y]->setPositionMatrixY(y);
+			formulaToRow[formula] = y;
  			
  			for(auto var : variablesInFormula){
  				
@@ -220,10 +221,8 @@
 	 	
 	 	//cout << "i " << i << " j " << j;
 	 	SMTRAT_LOG_ERROR("smtrat.my", "i " << i << " j " << j);
-	 	cout << " aij " << matrix(j,i) << " " << matrix(i,j) << endl;
 	 	
-	 	//
-		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); //Sure i j?
+		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); 
 		xi->setValue(Rational(v));
 		xj->setValue(xj->getValue()+theta);
 		
@@ -340,16 +339,18 @@
 	 	if(isBasic){
 	 		
 			for(int i=0;i<rowVars.size();i++){
-				TVariable* r = rowVars[i];
-	 			cout << "Check Variable " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value << endl;
-	 			if(rowActive[i] && func(r, matrix(i, pos))){
-	 				cout << "Fullfills basic" << endl;
-	 				if(r->getId() < smallestId){
-	 					smallestId = r->getId();
-	 					t = r;
-	 				}
+				if(rowActive[i]){
+					TVariable* r = rowVars[i];
+					cout << "Check Variable " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value << endl;
+					if( func(r, matrix(i, pos))){
+						cout << "Fullfills basic" << endl;
+						if(r->getId() < smallestId){
+							smallestId = r->getId();
+							t = r;
+						}
 	 				
-	 			}
+					}
+				}
 	 		}
 	 		
 	 	}else{
