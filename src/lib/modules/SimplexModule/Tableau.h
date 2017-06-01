@@ -41,7 +41,9 @@ namespace smtrat
 				carl::FastMap<carl::Variable,TVariable*> varToTVar;
 				
 				
+				bool assertUpper(TVariable* x, Bound c);
 				
+				bool assertLower(TVariable* x, Bound c);
 				
 				public:
 					

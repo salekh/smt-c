@@ -48,6 +48,9 @@
  			VariableId ++;
  			
  			ConstraintT constraint = formula.constraint();
+			
+			//Assure we have a linear formula
+			assert(constraint.lhs().isLinear());
  			
 			//Check the constraint whether it is >= (lower bound) or <= (upper bound) 
 			
@@ -288,43 +291,58 @@
 	 	std::vector<Bound> boundSet = formulaToBound[formula];
 	 	TVariable* x = formToVar[formula];
 	 	int row = formulaToRow[formula];
-	 	rowActive[row] = true;
 	 	
-		//loop runs twice for "=", otherwise only once
+		//IMPORTANT Question: update on first assertUpper/Lower can change variable values via update and second assert return false. Is this a problem?
+	 	bool result = true;
+		
 		for(auto c: boundSet){
 			
 			if(c.upperBound){
 				//AssertUpper (for upper bounds)
-				cout << "activateRow AssertUpper" << endl;
-				
-				if(c.value >= x->getUpperBound().value){return true;}
-				if(c.value < x->getLowerBound().value){return false;}
-				cout << "Stayed in" << endl;
-				
-				x->changeUpperBound(Bound(c.value, true));
-				
-				if(x->getIsBasic()==false && x->getValue() > c.value){
-					update(x, c);
-				}
+				result = result && assertUpper(x,c);
 				
 			}else {
 				//AssertLower (for lower bounds)
-				cout << "activateRow AssertLower" << endl;
-				
-				if(c.value <= x->getLowerBound().value){return true;}
-				if(c.value > x->getUpperBound().value){return false;}
-				cout << "Stayed in" << endl;
-				
-				x->changeLowerBound(Bound(c.value, false));
-				
-				if(x->getIsBasic()==false && x->getValue() < c.value){
-					update(x, c);
-				}
+				result = result && assertLower(x,c);
 			}
 		}
-
-	 	
-	 	return true;
+		
+		//Only activate the row when all asserts were true
+		if(result){
+			rowActive[row] = true;
+		}
+		
+	 	return result;
+	 }
+	 
+	 
+	 bool Tableau::assertUpper(TVariable* x, Bound c){
+		 cout << "activateRow AssertUpper" << endl;
+				
+		if(c.value >= x->getUpperBound().value){return true;}
+		if(c.value < x->getLowerBound().value){return false;}
+		cout << "Stayed in" << endl;
+				
+			x->changeUpperBound(Bound(c.value, true));
+				
+			if(x->getIsBasic()==false && x->getValue() > c.value){
+				update(x, c);
+		}
+		return true;
+	 }
+	 
+	 bool Tableau::assertLower(TVariable* x, Bound c){
+		cout << "activateRow AssertLower" << endl;
+				
+		if(c.value <= x->getLowerBound().value){return true;}
+		if(c.value > x->getUpperBound().value){return false;}
+				
+		x->changeLowerBound(Bound(c.value, false));
+				
+		if(x->getIsBasic()==false && x->getValue() < c.value){
+			update(x, c);
+		}
+		return true;
 	 }
 	 
 	 
