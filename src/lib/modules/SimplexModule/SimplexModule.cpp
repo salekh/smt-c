@@ -80,23 +80,27 @@
 		//Is doing exactly what is described in the paper Check() method
 		while(true){
 			
-			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
+			#if defined LOGGING
+				tableau.print();
+			#endif
 			
+			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
 			TVariable* x = tableau.findSmallestVariable(func, 0, true);
 			
 			if(x == nullptr){
-				SMTRAT_LOG_INFO("smtrat.my","x is nullptr");
+				SMTRAT_LOG_INFO("smtrat.my","No smallest variable found, create checkpoint and return SAT");
 				//Creates Checkpoint, needed for backtracking
 				tableau.createCheckpoint();
 				
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
 				
-				SMTRAT_LOG_INFO("smtrat.my","Needing change");
+				
+				SMTRAT_LOG_INFO("smtrat.my","Smallest basic var (such that value < l_Bound or value > u_Bound) is " << x->getName() << " with id " << x->getId());
 				
 				if(x->getValue() < x->getLowerBound().value){
 					
-					SMTRAT_LOG_INFO("smtrat.my","Condition 1");
+					SMTRAT_LOG_INFO("smtrat.my","Condition 1 (value < lowerBound)");
 					
 					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
 						|| (a<0 && v->getValue()>v->getLowerBound().value);  };
@@ -105,13 +109,14 @@
 						if(b == nullptr){
 							return Answer::UNSAT;
 						}
+						
+						SMTRAT_LOG_INFO("smtrat.my","Smallest nonbasic var (such that (aij > 0 and value < u_Bound) or (aij < 0 and value > l_Bound )) is " << b->getName() << " with id " << b->getId());
 
-						SMTRAT_LOG_INFO("smtrat.my","Pivot and Update!");
 						tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
 					}
 
 					if(x->getValue() > x->getUpperBound().value){
-						SMTRAT_LOG_INFO("smtrat.my","Condition 2");
+						SMTRAT_LOG_INFO("smtrat.my","Condition 2 (value > upperBound)");
 
 						func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
 							|| (a>0 && v->getValue()>v->getLowerBound().value);  };
@@ -120,14 +125,12 @@
 							if(b == nullptr){
 								return Answer::UNSAT;
 							}
+							
+							SMTRAT_LOG_INFO("smtrat.my","Smallest nonbasic var (such that (aij < 0 and value < u_Bound) or (aij > 0 and value > l_Bound )) is " << b->getName() << " with id " << b->getId());
 
-							SMTRAT_LOG_INFO("smtrat.my","Pivot and Update!");
 							tableau.pivotAndUpdate(x, b, Rational(x->getUpperBound().value));
 						}
 
-						#if defined LOGGING
-							tableau.print();
-						#endif
 						//return Answer::UNKNOWN;
 
 						if(limit == 0){

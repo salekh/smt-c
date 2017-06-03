@@ -4,9 +4,12 @@ namespace smtrat
 {
 	struct Bound
 	{
+		enum State { none, infinity, minus_infinity };
+		
 		public:
 			bool upperBound;
 			Rational value;
+			State state = none;
 			
 			Bound(){}
 			
@@ -14,5 +17,6 @@ namespace smtrat
 				upperBound = isUpperBound;
 				value = boundValue;
 			}
+			
 	};
 }

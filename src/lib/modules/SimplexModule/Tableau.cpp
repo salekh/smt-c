@@ -236,13 +236,10 @@
 	 void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, Rational v)
 	 {
 	 	//cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
-	 	SMTRAT_LOG_INFO("smtrat.my", "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v)
+	 	SMTRAT_LOG_INFO("smtrat.my", "PivotAndUpdate xi: " << xi->getName() << " xj: " << xj->getName() << " v: " << v)
 
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
-	 	
-	 	//cout << "i " << i << " j " << j;
-	 	SMTRAT_LOG_INFO("smtrat.my", "i " << i << " j " << j);
 	 	
 		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); 
 		xi->setValue(Rational(v));
@@ -254,6 +251,7 @@
 		
 		for(int k=0;k<matrix.rows();k++){
 			if(k != i){
+				SMTRAT_LOG_INFO("smtrat.my", rowVars[k]->getName() << " = " << rowVars[k]->getValue() << "+" << theta << "*" <<  matrix(k,j) << "=" << (rowVars[k]->getValue()+theta*matrix(k,j)));
 				rowVars[k]->setValue(rowVars[k]->getValue()+theta*matrix(k,j));
 			}
 		}
