@@ -31,11 +31,11 @@
  		std::set<carl::Variable> variablesInFormula;
  		unsigned long number_of_formulas = formulaList.size();
 
- 		SMTRAT_LOG_ERROR("smtrat.my", number_of_formulas << "Formulas");
+ 		SMTRAT_LOG_INFO("smtrat.my", number_of_formulas << " Formulas");
  		
  		for(auto formula : formulaList)
  		{
- 			SMTRAT_LOG_ERROR("smtrat.my", "Loading " << formula.constraint() << " l " << formula.constraint().lhs().constantPart());
+ 			SMTRAT_LOG_INFO("smtrat.my", "Loading " << formula.constraint() << " l " << formula.constraint().lhs().constantPart());
  			//cout << "Loading " << formula.constraint() << " l " << formula.constraint().lhs().constantPart() <<  endl;
 			//Get the variables in the formula
  			std::set<carl::Variable> varList = formula.variables();
@@ -60,8 +60,6 @@
  			{
 				case carl::Relation::EQ:
 				{
-					cout << "EQ";
-					
 					Bound bound1(-constraint.constantPart(),false);
 					Bound bound2(-constraint.constantPart(),true);
 					boundSet = {bound1, bound2};
@@ -70,8 +68,6 @@
 				
  				case carl::Relation::GEQ:
  				{
-					cout << "GEQ";
-					
 					Bound bound(-constraint.constantPart(),false);
 					boundSet = {bound};
 					break;
@@ -79,8 +75,6 @@
  				}
  				case carl::Relation::LEQ:
  				{
-					cout << "LEQ";
-					
 					Bound bound(-constraint.constantPart(),true);
 					boundSet = {bound};
 					break;
@@ -95,7 +89,7 @@
  			//Bound is +5
  			 
  			
- 			SMTRAT_LOG_ERROR("smtrat.my", "Created Bound " << -constraint.constantPart() );
+ 			SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << -constraint.constantPart() );
  			//cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
  			
  			formulaToBound[formula] = boundSet;
@@ -143,24 +137,26 @@
  					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
  					Rational _coeffValue = Rational( coeff.lcoeff() );
  					
- 					cout << coeff << "\t"; 
- 					//SMTRAT_LOG_ERROR("smtrat.my",coeff << "\t");
+ 					//cout << coeff << "\t"; 
+ 					//SMTRAT_LOG_INFO("smtrat.my",coeff << "\t");
  					matrix(y,x) = _coeffValue;
  				} else {
- 					cout << "0" <<  "\t";
- 					//SMTRAT_LOG_ERROR("smtrat.my", "0" <<  "\t");
+ 					//cout << "0" <<  "\t";
+ 					//SMTRAT_LOG_INFO("smtrat.my", "0" <<  "\t");
  				}
  				
  				x++;
  			}
  			
  			y++;
-			cout << endl;
+			//cout << endl;
  		}	
  		
-		SMTRAT_LOG_ERROR("smtrat.my", "Print Matrix");
+		SMTRAT_LOG_INFO("smtrat.my", "Print Matrix");
 		//Print the Tableau
- 		print();
+		#if defined LOGGING
+			print();
+		#endif
  	}
  	
  	/* This function swaps a basic variable with a non basic variable
@@ -180,7 +176,7 @@
  	void Tableau::pivot(int rowPos, int columnPos)
  	{
  		//cout << "Pivoting Starts!" << endl;
- 		SMTRAT_LOG_ERROR("smtrat.my", "Pivoting Starts!");
+ 		SMTRAT_LOG_INFO("smtrat.my", "Pivoting Starts!");
 
 		//Swap variables in row and column vector
  		TVariable* v = rowVars[rowPos];
@@ -240,21 +236,21 @@
 	 void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, Rational v)
 	 {
 	 	//cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
-	 	SMTRAT_LOG_ERROR("smtrat.my", "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v)
+	 	SMTRAT_LOG_INFO("smtrat.my", "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v)
 
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
 	 	
 	 	//cout << "i " << i << " j " << j;
-	 	SMTRAT_LOG_ERROR("smtrat.my", "i " << i << " j " << j);
+	 	SMTRAT_LOG_INFO("smtrat.my", "i " << i << " j " << j);
 	 	
 		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); 
 		xi->setValue(Rational(v));
 		xj->setValue(xj->getValue()+theta);
 		
-		cout <<  "theta " << theta << endl;
-		cout << xi->getName() << " = " << xi->getValue() << endl;
-		cout << xj->getName() << " = " << xj->getValue() << endl;
+		SMTRAT_LOG_INFO( "smtrat.my","theta " << theta );
+		SMTRAT_LOG_INFO("smtrat.my", xi->getName() << " = " << xi->getValue() );
+		SMTRAT_LOG_INFO("smtrat.my", xj->getName() << " = " << xj->getValue() );
 		
 		for(int k=0;k<matrix.rows();k++){
 			if(k != i){
@@ -275,7 +271,7 @@
 	 
 	 void Tableau::update(TVariable* x, Bound b)
 	 {
-	 	cout << "Update" << endl;
+	 	SMTRAT_LOG_INFO("smtrat.my", "Update");
 	 	
 	 	int column = x->getPositionMatrixX();
 	 	for(auto basic : rowVars){
@@ -317,11 +313,11 @@
 	 
 	 
 	 bool Tableau::assertUpper(TVariable* x, Bound c){
-		 cout << "activateRow AssertUpper" << endl;
+		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper");
 				
 		if(c.value >= x->getUpperBound().value){return true;}
 		if(c.value < x->getLowerBound().value){return false;}
-		cout << "Stayed in" << endl;
+		//cout << "Stayed in" << endl;
 				
 			x->changeUpperBound(Bound(c.value, true));
 				
@@ -332,7 +328,7 @@
 	 }
 	 
 	 bool Tableau::assertLower(TVariable* x, Bound c){
-		cout << "activateRow AssertLower" << endl;
+		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertLower");
 				
 		if(c.value <= x->getLowerBound().value){return true;}
 		if(c.value > x->getUpperBound().value){return false;}
@@ -387,9 +383,9 @@
 			for(int i=0;i<rowVars.size();i++){
 				if(rowActive[i]){
 					TVariable* r = rowVars[i];
-					cout << "Check Variable " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value << endl;
+					
 					if( func(r, matrix(i, pos))){
-						cout << "Fullfills basic" << endl;
+						SMTRAT_LOG_INFO("smtrat.my","Check Variable succ " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value);
 						if(r->getId() < smallestId){
 							smallestId = r->getId();
 							t = r;

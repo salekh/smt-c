@@ -47,7 +47,7 @@
 		}
 		
 		bool result = tableau.activateRow(_subformula->formula());
-		cout << "AddCore returns " << result << endl;
+		SMTRAT_LOG_INFO("smtrat.my","AddCore returns " << result);
 		return result;
 	}
 	
@@ -70,8 +70,12 @@
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
-		//Used only for testing! To prevent an infinite loop!
-		int limit = 10;
+		//Used only for testing to prevent an infinite loop!
+		#if defined DEVELOPPER
+			int limit = 10;
+		#else
+			int limit = -1;
+		#endif
 		
 		//Is doing exactly what is described in the paper Check() method
 		while(true){
@@ -81,18 +85,18 @@
 			TVariable* x = tableau.findSmallestVariable(func, 0, true);
 			
 			if(x == nullptr){
-				cout << "x is nullptr" << endl;
+				SMTRAT_LOG_INFO("smtrat.my","x is nullptr");
 				//Creates Checkpoint, needed for backtracking
 				tableau.createCheckpoint();
 				
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
 				
-				cout << "Needing change" << endl;
+				SMTRAT_LOG_INFO("smtrat.my","Needing change");
 				
 				if(x->getValue() < x->getLowerBound().value){
 					
-					cout << "Condition 1" << endl;
+					SMTRAT_LOG_INFO("smtrat.my","Condition 1");
 					
 					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
 						|| (a<0 && v->getValue()>v->getLowerBound().value);  };
@@ -102,12 +106,12 @@
 							return Answer::UNSAT;
 						}
 
-						cout << "Pivot and Update!" << endl;
+						SMTRAT_LOG_INFO("smtrat.my","Pivot and Update!");
 						tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
 					}
 
 					if(x->getValue() > x->getUpperBound().value){
-						cout << "Condition 2" << endl;
+						SMTRAT_LOG_INFO("smtrat.my","Condition 2");
 
 						func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
 							|| (a>0 && v->getValue()>v->getLowerBound().value);  };
@@ -117,15 +121,17 @@
 								return Answer::UNSAT;
 							}
 
-							cout << "Pivot and Update!" << endl;
+							SMTRAT_LOG_INFO("smtrat.my","Pivot and Update!");
 							tableau.pivotAndUpdate(x, b, Rational(x->getUpperBound().value));
 						}
 
-						tableau.print();
+						#if defined LOGGING
+							tableau.print();
+						#endif
 						//return Answer::UNKNOWN;
 
 						if(limit == 0){
-							cout << "WARNING: INFINITE LOOP BREAK" << endl;
+							SMTRAT_LOG_INFO("smtrat.my","WARNING: INFINITE LOOP BREAK");
 							break;
 						}
 						limit--;
