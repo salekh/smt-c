@@ -76,8 +76,8 @@ namespace smtrat
 					TVariable* findSmallestVariable(std::function<bool(TVariable*,Rational)> func, int helper, bool isBasic);
 					
 					
-					//Helper function to convert
-					TVariable convertVar(carl::Variable var);
+					//Gets a map with the variables and keys to be inserted into the model
+					carl::FastMap<carl::Variable,Rational> getModelValues() const;
 					
 					//Prints the tableau on the screen
 					void print();

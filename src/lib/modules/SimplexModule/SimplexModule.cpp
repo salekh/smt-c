@@ -63,7 +63,14 @@
 		mModel.clear();
 		if( solverState() == Answer::SAT )
 		{
-			// Your code.
+			carl::FastMap<carl::Variable,Rational> map = tableau.getModelValues();
+			
+			for(auto x : map){
+				mModel.insert(mModel.end(), std::make_pair(x.first, x.second) );
+				
+			}
+			
+			mModelComputed = true;
 		}
 	}
 	

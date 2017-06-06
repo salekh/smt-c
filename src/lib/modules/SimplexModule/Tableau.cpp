@@ -413,10 +413,18 @@
 	 }
 	 
 	 
-	 TVariable Tableau::convertVar(carl::Variable var)
+	 carl::FastMap<carl::Variable,Rational> Tableau::getModelValues() const
 	 {
-	 	TVariable t;
-	 	return t;
+		carl::FastMap<carl::Variable,Rational> map;
+		
+		
+		for (auto const x : varToTVar){
+			carl::Variable origVar = x.first;
+			TVariable* v = x.second;
+			map[origVar] = v->getValue();
+		}
+		
+	 	return map;
 	 }
 	 
 	 
