@@ -178,7 +178,24 @@
  	*  x = s1 - 1*y
  	*  Row: (1,-1)
  	*/
- 	
+ 			void Tableau::checkTest()
+	{
+						for(int i=0;i<rowVars.size();i++){
+							
+							if(rowActive[i]){
+								Rational sum = 0;
+								for(int a=0;a<columnVars.size();a++){
+									sum += matrix(i, a)*columnVars[a]->getValue();
+								}
+								if(sum != rowVars[i]->getValue()){
+									SMTRAT_LOG_WARN("smtrat.my", "Value Error in Matrix Row " << i << " (starting with 0)");
+								}
+							
+							}
+						}
+	}
+	
+	
  	void Tableau::pivot(int rowPos, int columnPos)
  	{
  		//cout << "Pivoting Starts!" << endl;
@@ -229,7 +246,7 @@
  			}
  			
  		}
- 		
+ 		checkTest();
  	}
  	
  	
@@ -247,7 +264,7 @@
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
 	 	
-		Rational theta = Rational(v)-xi->getValue()/matrix(i, j); 
+		Rational theta = (Rational(v)-xi->getValue())/matrix(i, j); 
 		xi->setValue(Rational(v));
 		xj->setValue(xj->getValue()+theta);
 		
@@ -261,6 +278,9 @@
 				rowVars[k]->setValue(rowVars[k]->getValue()+theta*matrix(k,j));
 			}
 		}
+		
+		checkTest();
+		SMTRAT_LOG_INFO( "smtrat.my","do swap");
 		
 		pivot(i,j);
 	}
@@ -284,6 +304,8 @@
 	 	}
 	 	
 	 	x->setValue(b.value);
+		
+		checkTest();
 	 }
 	 
 	 bool Tableau::activateRow(FormulaT formula)
@@ -294,16 +316,17 @@
 	 	
 		//IMPORTANT Question: update on first assertUpper/Lower can change variable values via update and second assert return false. Is this a problem?
 	 	bool result = true;
+		SMTRAT_LOG_INFO("smtrat.my","Activate Row with basic = " << x->getIsBasic() );
 		
 		for(auto c: boundSet){
 			
 			if(c.upperBound){
 				//AssertUpper (for upper bounds)
-				result = result && assertUpper(x,c);
+				result = result & assertUpper(x,c);
 				
 			}else {
 				//AssertLower (for lower bounds)
-				result = result && assertLower(x,c);
+				result = result & assertLower(x,c);
 			}
 		}
 		
@@ -317,11 +340,10 @@
 	 
 	 
 	 bool Tableau::assertUpper(TVariable* x, Bound c){
-		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper");
+		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper Bound:" << c.value << " "  << x->getValue());
 				
 		if(c.value >= x->getUpperBound().value){return true;}
 		if(c.value < x->getLowerBound().value){return false;}
-		//cout << "Stayed in" << endl;
 				
 			x->changeUpperBound(Bound(c.value, true));
 				
@@ -332,7 +354,7 @@
 	 }
 	 
 	 bool Tableau::assertLower(TVariable* x, Bound c){
-		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertLower");
+		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertLower Bound:" << c.value);
 				
 		if(c.value <= x->getLowerBound().value){return true;}
 		if(c.value > x->getUpperBound().value){return false;}
