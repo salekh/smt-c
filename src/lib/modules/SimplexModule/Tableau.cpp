@@ -80,6 +80,12 @@
 					break;
  					
  				}
+				default:
+				{
+					assert(false);
+					break;
+				}
+             
 
 				
  			}
