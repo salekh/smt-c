@@ -65,6 +65,7 @@
 	void SimplexModule<Settings>::updateModel() const
 	{
 		mModel.clear();
+		//if solver returns SAT, then get the satisfying model
 		if( solverState() == Answer::SAT )
 		{
 			carl::FastMap<carl::Variable,Rational> map = tableau.getModelValues();
@@ -76,23 +77,27 @@
 			
 			mModelComputed = true;
 		}
+		else{
+			SMTRAT_LOG_INFO("smtrat.my","Solver returned UNSAT, model won't be updated");
+		}
 	}
 	
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
 		//Used only for testing to prevent an infinite loop!
-		#if defined DEVELOPPER
-			int limit = 10;
+		#if defined DEVELOPER
+		int limit = 10;
 		#else
-			int limit = -1;
+		int limit = -1;
 		#endif
 		
 		//Is doing exactly what is described in the paper Check() method
 		while(true){
 			
+			// Print Tableau only if Logging is turned on
 			#if defined LOGGING
-				tableau.print();
+			tableau.print();
 			#endif
 			
 			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
@@ -165,38 +170,38 @@
 	template<class Settings>
 	void SimplexModule<Settings>::createInfisibleSubset(TVariable* x)
 	{
-			FormulaSetT infSubSet;
-			std::function<bool(TVariable*,Rational)> func;
-            
-			
-			
-			std::set<TVariable*> conflictVars;
-			
-			if(x->getValue() < x->getLowerBound().value){
-				func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
-				conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
+		FormulaSetT infSubSet;
+		std::function<bool(TVariable*,Rational)> func;
+
+
+
+		std::set<TVariable*> conflictVars;
+
+		if(x->getValue() < x->getLowerBound().value){
+			func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
+			conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
+		}
+
+		if(x->getValue() > x->getUpperBound().value){
+			func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
+			conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
+		}
+
+		if(conflictVars.size() > 0){
+
+			std::cout << "Added Here";
+
+			infSubSet.insert(x->getFormula());
+
+			for(auto y : conflictVars){
+				infSubSet.insert(y->getFormula());
 			}
-			
-			if(x->getValue() > x->getUpperBound().value){
-				func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
-				conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
-			}
-			
-			if(conflictVars.size() > 0){
-				
-				std::cout << "Added Here";
-				
-				infSubSet.insert(x->getFormula());
-				
-				for(auto y : conflictVars){
-					infSubSet.insert(y->getFormula());
-				}
-				
-				
-				mInfeasibleSubsets.push_back( infSubSet );
-			}else{
-				std::cout << "Not Reached!";
-			}
+
+
+			mInfeasibleSubsets.push_back( infSubSet );
+		}else{
+			std::cout << "Not Reached!";
+		}
 	}
 }
 
