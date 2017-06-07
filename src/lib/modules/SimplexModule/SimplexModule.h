@@ -89,5 +89,9 @@ namespace smtrat
 			 *		 Unknown, otherwise.
 			 */
 			Answer checkCore();
+			
+			
+			
+			void createInfisibleSubset(TVariable* x);
 	};
 }

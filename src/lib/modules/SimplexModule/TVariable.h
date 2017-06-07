@@ -15,6 +15,7 @@ namespace smtrat
 				int id=0;
 				
 				carl::Variable original;
+				FormulaT formula;
 				
 				Rational value = 0;
 				
@@ -44,7 +45,7 @@ namespace smtrat
 			
 				TVariable();
 				
-				TVariable(int pId, bool pIsBasic);
+				TVariable(FormulaT formula, int pId, bool pIsBasic);
 				
 				TVariable(carl::Variable pOriginal, int pId, bool pIsBasic);
 			
@@ -64,7 +65,8 @@ namespace smtrat
 				void setValue(Rational r) { value = r; };
 				
 				//Stores and load value/bounds
-				void save();
+				void saveValue();
+				void saveBounds();
 				void load();
 				
 				void setPositionMatrixX(int positionMatrixX) {this->positionMatrixX = positionMatrixX;}
@@ -75,6 +77,7 @@ namespace smtrat
 				Bound& getUpperBound() { return upperBound; };
 				Bound& getLowerBound() { return lowerBound; };
 				
+				FormulaT& getFormula() { return formula; };
 				
 				std::string getName();
 		};

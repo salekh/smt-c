@@ -66,7 +66,9 @@ namespace smtrat
 					void deactivateRow(FormulaT formula);
 					
 					//Used by check, used for Backtracking described in the paper
-					void createCheckpoint();
+					void createCheckpointValue();
+					
+					void createCheckpointBounds();
 					
 					void checkTest();
 					
@@ -77,6 +79,8 @@ namespace smtrat
 					// returns a TVariable if found, otherwise a nullpointer
 					TVariable* findSmallestVariable(std::function<bool(TVariable*,Rational)> func, int helper, bool isBasic);
 					
+					
+					std::set<TVariable*> findConflictVariables(std::function<bool(TVariable*,Rational)> func, int helper);
 					
 					//Gets a map with the variables and keys to be inserted into the model
 					carl::FastMap<carl::Variable,Rational> getModelValues() const;

@@ -5,9 +5,10 @@ namespace smtrat
 	TVariable::TVariable(){}
 	
 	//Constructor for slack variables
-	TVariable::TVariable(int pId, bool pIsBasic){
+	TVariable::TVariable(FormulaT form, int pId, bool pIsBasic){
 		id = pId;
 		isBasic = pIsBasic;
+		formula = form;
 		
 		upperBound = Bound(Rational(10000000), true);   //TODO real Infinity
 		lowerBound = Bound(Rational(-10000000), false);
@@ -27,15 +28,21 @@ namespace smtrat
 		isSlack=false;
 	}
 	
-	void TVariable::save(){ 
+	void TVariable::saveValue(){ 
+		lastValue = value; 
+	}
+	
+	void TVariable::saveBounds(){ 
 		stackUpperBound.push(upperBound);
 		stackLowerBound.push(lowerBound);
-		lastValue = value; 
-		
 	}
 		
 	void TVariable::load(){ 
 		value = lastValue; 
+		
+		if(stackUpperBound.empty() || stackLowerBound.empty() ){
+			SMTRAT_LOG_ERROR("smtrat.my","TVariable, cant pop empty stack!");
+		}
 			
 		upperBound = stackUpperBound.top();
 		stackUpperBound.pop();

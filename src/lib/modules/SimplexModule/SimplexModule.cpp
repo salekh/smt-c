@@ -47,6 +47,10 @@
 		}
 		
 		bool result = tableau.activateRow(_subformula->formula());
+		
+		if(result){
+			tableau.createCheckpointBounds();
+		}
 		SMTRAT_LOG_INFO("smtrat.my","AddCore returns " << result);
 		return result;
 	}
@@ -54,7 +58,7 @@
 	template<class Settings>
 	void SimplexModule<Settings>::removeCore( ModuleInput::const_iterator _subformula )
 	{
-		// Your code.
+		tableau.deactivateRow(_subformula->formula());
 	}
 	
 	template<class Settings>
@@ -97,7 +101,7 @@
 			if(x == nullptr){
 				SMTRAT_LOG_INFO("smtrat.my","No smallest variable found, create checkpoint and return SAT");
 				//Creates Checkpoint, needed for backtracking
-				tableau.createCheckpoint();
+				tableau.createCheckpointValue();
 				
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
@@ -114,6 +118,8 @@
 						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 						if(b == nullptr){
+							generateTrivialInfeasibleSubset();
+							//createInfisibleSubset(x);
 							return Answer::UNSAT;
 						}
 						
@@ -130,6 +136,8 @@
 							TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 							if(b == nullptr){
+								generateTrivialInfeasibleSubset();
+								//createInfisibleSubset(x);
 								return Answer::UNSAT;
 							}
 							
@@ -150,6 +158,45 @@
 				}
 				
 		return Answer::UNKNOWN; // This should be adapted according to your implementation.
+	}
+
+
+
+	template<class Settings>
+	void SimplexModule<Settings>::createInfisibleSubset(TVariable* x)
+	{
+			FormulaSetT infSubSet;
+			std::function<bool(TVariable*,Rational)> func;
+            
+			
+			
+			std::set<TVariable*> conflictVars;
+			
+			if(x->getValue() < x->getLowerBound().value){
+				func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
+				conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
+			}
+			
+			if(x->getValue() > x->getUpperBound().value){
+				func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
+				conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
+			}
+			
+			if(conflictVars.size() > 0){
+				
+				std::cout << "Added Here";
+				
+				infSubSet.insert(x->getFormula());
+				
+				for(auto y : conflictVars){
+					infSubSet.insert(y->getFormula());
+				}
+				
+				
+				mInfeasibleSubsets.push_back( infSubSet );
+			}else{
+				std::cout << "Not Reached!";
+			}
 	}
 }
 

@@ -44,7 +44,7 @@
 
  			//TODO Why "Slack" ?!
 			//Create Slack Variable of TVariable class
- 			TVariable* tVar = new TVariable(VariableId , true);
+ 			TVariable* tVar = new TVariable(formula, VariableId , true);
  			VariableId ++;
  			
  			ConstraintT constraint = formula.constraint();
@@ -182,17 +182,17 @@
 	{
 						for(int i=0;i<rowVars.size();i++){
 							
-							if(rowActive[i]){
+							//if(rowActive[i]){
 								Rational sum = 0;
 								for(int a=0;a<columnVars.size();a++){
 									sum += matrix(i, a)*columnVars[a]->getValue();
 								}
 								if(sum != rowVars[i]->getValue()){
-									SMTRAT_LOG_WARN("smtrat.my", "Value Error in Matrix Row " << i << " (starting with 0)");
+									SMTRAT_LOG_WARN("smtrat.my", "VALUE ERROR in Matrix Row " << i << " (starting with 0)");
 								}
 							
 							}
-						}
+						//}
 	}
 	
 	
@@ -219,19 +219,7 @@
  		for(int y=0;y<matrix.rows();y++){
  			
 			//For the row where the variable is swapped
- 			if(rowPos == y){ 
- 				for(int x=0;x<matrix.cols();x++){
- 					
- 					if(columnPos == x){
- 						matrix(y,x) = Rational(1/factor);
- 					}else{
- 						matrix(y,x) /= Rational(-factor);
- 					}
- 					
- 				}
- 				
-			//For all other rows
- 			}else{
+ 			if(rowPos != y){ 
  				
  				Rational factorRow = Rational(matrix(y,columnPos));
  				
@@ -244,8 +232,22 @@
  					}
  				}
  			}
- 			
  		}
+		
+		int y = rowPos;
+		for(int x=0;x<matrix.cols();x++){
+ 					
+			if(columnPos == x){
+				matrix(y,x) = Rational(1/factor);
+			}else{
+				matrix(y,x) /= Rational(-factor);
+			}
+ 					
+ 		}
+		
+		
+		
+		
  		checkTest();
  	}
  	
@@ -260,6 +262,7 @@
 	 {
 	 	//cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
 	 	SMTRAT_LOG_INFO("smtrat.my", "PivotAndUpdate xi: " << xi->getName() << " xj: " << xj->getName() << " v: " << v)
+		checkTest();
 
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
@@ -300,7 +303,7 @@
 	 	int column = x->getPositionMatrixX();
 	 	for(auto basic : rowVars){
 	 		int row = basic->getPositionMatrixY(); 
-	 		basic->setValue(basic->getValue() + matrix(column,row)*(b.value-x->getValue()));
+	 		basic->setValue(basic->getValue() + matrix(row,column)*(b.value-x->getValue()));
 	 	}
 	 	
 	 	x->setValue(b.value);
@@ -368,13 +371,24 @@
 	 }
 	 
 	 
-	 void Tableau::createCheckpoint(){
+	 void Tableau::createCheckpointValue(){
 		 for(auto r : rowVars){
-			 r->save();
+			 r->saveValue();
 		 }
 		 
 		 for(auto c : columnVars){
-			 c->save();
+			 c->saveValue();
+		 }
+	 }
+	 
+	 
+	 void Tableau::createCheckpointBounds(){
+		 for(auto r : rowVars){
+			 r->saveBounds();
+		 }
+		 
+		 for(auto c : columnVars){
+			 c->saveBounds();
 		 }
 	 }
 	 
@@ -441,6 +455,20 @@
 	 }
 	 
 	 
+	 std::set<TVariable*> Tableau::findConflictVariables(std::function<bool(TVariable*, Rational)> func, int pos){
+		 std::set<TVariable*> returnSet;
+		 
+		 for(int i=0;i<columnVars.size();i++){
+				TVariable* c = columnVars[i];
+	 			if(func(c, matrix(pos, i))){
+	 				returnSet.insert(c);
+	 				
+	 			}
+	 		}
+			return returnSet;
+	 }
+	 
+	 
 	 carl::FastMap<carl::Variable,Rational> Tableau::getModelValues() const
 	 {
 		carl::FastMap<carl::Variable,Rational> map;
@@ -458,6 +486,14 @@
 	 
 	 void Tableau::print(){
 	 	
+		 //Create Vector for formulas
+		 std::vector<FormulaT> formulaRow;
+		 formulaRow.resize(rowVars.size());
+		 for(auto a : formulaToRow){
+			 formulaRow[a.second] = a.first;
+		 }
+		 
+		 
 	 	cout << "\t";
 	 	for(auto c : columnVars){
 	 		cout << c->getName() << "\t";
@@ -479,6 +515,8 @@
 	 		for(int i=0; i< matrix.cols();i++){
 	 			cout << "\t" << matrix(a,i);
 	 		}
+			
+			cout << "\t\t" << formulaRow[a];
 	 		
 	 		cout << endl;
 	 		a++;

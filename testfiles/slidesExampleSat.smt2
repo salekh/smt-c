@@ -10,7 +10,7 @@
 (assert (>= (+ a  b  c) 100))
 (assert (or (>= a 5) (>= b 5)))
 (assert (>= c 10))
-(assert (<= (+ a (+ b (+ c))) 180))
+(assert (<= (+ a (+ (* 2 b) (+ (* 5 c)))) 180))
 (assert (<= (+ (* 3 a) (* 2 b) c) 300))
 
 

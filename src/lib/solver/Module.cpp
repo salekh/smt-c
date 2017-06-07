@@ -1204,6 +1204,7 @@ namespace smtrat
             {
                 if( !mpReceivedFormula->contains( subFormula ) )
                 {
+					std::cout << "Da ist das Problem!";
                     return false;
                 }
             }
