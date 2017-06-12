@@ -65,11 +65,13 @@ namespace smtrat
 					//used by removeCore
 					void deactivateRow(FormulaT formula);
 					
-					//Used by check, used for Backtracking described in the paper
+					//Called everytime after succesfull checkCore happend to store values for Backtracking as described in the paper
 					void createCheckpointValue();
 					
+					//Created everytime befor assertUpper/assertLower is called for Backtracking as described in the paper
 					void createCheckpointBounds();
 					
+					//Helper function that checks whether the tableau matrix is correct when using the values of the variables
 					void checkTest();
 					
 					
@@ -80,7 +82,7 @@ namespace smtrat
 					TVariable* findSmallestVariable(std::function<bool(TVariable*,Rational)> func, int helper, bool isBasic);
 					
 					
-					std::set<TVariable*> findConflictVariables(std::function<bool(TVariable*,Rational)> func, int helper);
+					std::set<TVariable*> findConflictVariables(TVariable* v);
 					
 					//Gets a map with the variables and keys to be inserted into the model
 					carl::FastMap<carl::Variable,Rational> getModelValues() const;

@@ -14,6 +14,7 @@ namespace smtrat
 				
 				int id=0;
 				
+				//A TVariable is either connected to a Variable in the formula or to a formula
 				carl::Variable original;
 				FormulaT formula;
 				

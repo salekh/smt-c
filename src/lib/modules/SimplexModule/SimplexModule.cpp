@@ -41,6 +41,8 @@
 		//Checks if tableau is initialized
 		//If not initialized, then pass it to tableau class to collect the formulae
 
+		tableau.createCheckpointBounds();
+
 		if(tableauInitialized == false){
 			tableauInitialized = true;
 			tableau = Tableau(listFormulas);
@@ -48,9 +50,6 @@
 		
 		bool result = tableau.activateRow(_subformula->formula());
 		
-		if(result){
-			tableau.createCheckpointBounds();
-		}
 		SMTRAT_LOG_INFO("smtrat.my","AddCore returns " << result);
 		return result;
 	}
@@ -65,7 +64,6 @@
 	void SimplexModule<Settings>::updateModel() const
 	{
 		mModel.clear();
-		//if solver returns SAT, then get the satisfying model
 		if( solverState() == Answer::SAT )
 		{
 			carl::FastMap<carl::Variable,Rational> map = tableau.getModelValues();
@@ -77,27 +75,23 @@
 			
 			mModelComputed = true;
 		}
-		else{
-			SMTRAT_LOG_INFO("smtrat.my","Solver returned UNSAT, model won't be updated");
-		}
 	}
 	
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
 		//Used only for testing to prevent an infinite loop!
-		#if defined DEVELOPER
-		int limit = 10;
+		#if defined DEVELOPPER
+			int limit = 10;
 		#else
-		int limit = -1;
+			int limit = -1;
 		#endif
 		
 		//Is doing exactly what is described in the paper Check() method
 		while(true){
 			
-			// Print Tableau only if Logging is turned on
 			#if defined LOGGING
-			tableau.print();
+				tableau.print();
 			#endif
 			
 			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
@@ -123,8 +117,7 @@
 						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 						if(b == nullptr){
-							generateTrivialInfeasibleSubset();
-							//createInfisibleSubset(x);
+							createInfisibleSubset(x);
 							return Answer::UNSAT;
 						}
 						
@@ -141,8 +134,7 @@
 							TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 							if(b == nullptr){
-								generateTrivialInfeasibleSubset();
-								//createInfisibleSubset(x);
+								createInfisibleSubset(x);
 								return Answer::UNSAT;
 							}
 							
@@ -154,7 +146,7 @@
 						//return Answer::UNKNOWN;
 
 						if(limit == 0){
-							SMTRAT_LOG_INFO("smtrat.my","WARNING: INFINITE LOOP BREAK");
+							SMTRAT_LOG_WARN("smtrat.my","WARNING: INFINITE LOOP BREAK");
 							break;
 						}
 						limit--;
@@ -170,38 +162,27 @@
 	template<class Settings>
 	void SimplexModule<Settings>::createInfisibleSubset(TVariable* x)
 	{
-		FormulaSetT infSubSet;
-		std::function<bool(TVariable*,Rational)> func;
-
-
-
-		std::set<TVariable*> conflictVars;
-
-		if(x->getValue() < x->getLowerBound().value){
-			func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
-			conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
-		}
-
-		if(x->getValue() > x->getUpperBound().value){
-			func = [](TVariable* v, Rational a)-> bool { return (a != 0);  };
-			conflictVars = tableau.findConflictVariables(func, x->getPositionMatrixY());
-		}
-
-		if(conflictVars.size() > 0){
-
-			std::cout << "Added Here";
-
-			infSubSet.insert(x->getFormula());
-
-			for(auto y : conflictVars){
-				infSubSet.insert(y->getFormula());
+			SMTRAT_LOG_INFO("smtrat.my","Try to create Infisible Subset");
+			//generateTrivialInfeasibleSubset();
+			//return;
+			
+			std::set<TVariable*> conflictVars = tableau.findConflictVariables(x);
+			
+			if(conflictVars.size() > 0){
+				
+				SMTRAT_LOG_INFO("smtrat.my","Added InfSubSet");
+				
+				FormulaSetT infSubSet;
+				infSubSet.insert(x->getFormula());
+				
+				for(auto y : conflictVars){
+					infSubSet.insert(y->getFormula());
+				}
+				
+				mInfeasibleSubsets.push_back( std::move(infSubSet) );
+			}else{
+				SMTRAT_LOG_INFO("smtrat.my","No InfSubSet found");
 			}
-
-
-			mInfeasibleSubsets.push_back( infSubSet );
-		}else{
-			std::cout << "Not Reached!";
-		}
 	}
 }
 
