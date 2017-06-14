@@ -1,3 +1,11 @@
+/**
+ * @file Tableau.h
+ * @author Sanchit Alekh <sanchit.alekh@rwth-aachen.de>
+ * @author Karsten Jungnitsch <karsten.jungnitsch@rwth-aachen.de>
+ * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
+ *
+ */
+
 #include <list>
 #include <algorithm>
 #include <functional>

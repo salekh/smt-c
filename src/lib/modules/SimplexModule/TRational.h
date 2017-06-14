@@ -17,23 +17,48 @@
  	{
 
  	private:
-	/**
-	* Rational Part (for weak inequalities)
-	*/
-	Rational rationalPart;
+		/**
+		* Rational Part (for weak inequalities)
+		*/
+		Rational rationalPart;
 
-	/*
-	* Delta Part (for strict inequalities)
-	*/	
-	Rational deltaPart;
+		/*
+		* Delta Part (for strict inequalities)
+		*/	
+		Rational deltaPart;
 
 	public:
 		
 		/*
+		*
+		*/
+		TRational(const Rational& rational, const Rational& delta);
+		
+		/*
+		*
+		*/
+		TRational(const Rational& rational);
+		
+		/*
+		* Default constructor
+		*/
+		TRational();
+		
+
+		~TRational();
+
+		/**************************************
+					GETTERS
+		**************************************/
+
+
+		/*
 		* getter for Rational Value
 		* @return Rational Value
 		*/
-		Rational getRationalPart();
+		const Rational& getRationalPart() const{
+			return rationalPart;
+		}
 
 		
 		/*
@@ -41,11 +66,13 @@
 		* @return Delta Value
 		*/
 
-		Rational getDeltaPart();
+		const Rational& getDeltaPart() const{
+			return deltaPart;
+		}
 
 
 		/****************************************
-		OVERLOADING THE COMPARISON OPERATORS 
+				OVERLOADING THE OPERATORS 
 		******************************************/
 
 		/**
@@ -184,23 +211,6 @@
 	     * @return 
 	     */
 	     bool operator >=( const Rational& _a ) const;
-		/*
-		*
-		*/
-		TRational(const Rational& rationalPart, const Rational& deltaPart);
-		
-		/*
-		*
-		*/
-		TRational(const Rational& rationalPart);
-		
-		/*
-		* Default constructor
-		*/
-		TRational();
-		
-
-		virtual ~TRational();
 	
 		};
 
