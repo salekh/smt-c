@@ -11,195 +11,197 @@
 #include "Bound.h"
 #include <limits>
 
-namespace smtrat 
+ namespace smtrat{
 
-class TRational
-{
+ 	class TRational
+ 	{
 
-private:
+ 	private:
 	/**
 	* Rational Part (for weak inequalities)
 	*/
-	Rational rationalValue;
+	Rational rationalPart;
 
 	/*
 	* Delta Part (for strict inequalities)
 	*/	
-	Rational deltaValue;
+	Rational deltaPart;
 
-public:
-	
-	/*
-	* getter for Rational Value
-	* @return Rational Value
-	*/
-	Rational getRationalValue();
-
-	
-	/*
-	* getter for Delta Value
-	* @return Delta Value
-	*/
-
-	Rational getDeltaValue();
+	public:
+		
+		/*
+		* getter for Rational Value
+		* @return Rational Value
+		*/
+		Rational getRationalPart();
 
 		
-	/****************************************
-	OVERLOADING THE COMPARISON OPERATORS 
-	******************************************/
+		/*
+		* getter for Delta Value
+		* @return Delta Value
+		*/
 
-	/**
-     * 
-     * @param _value
-     * @return
-     */
-	TRational& operator=(const TRational& _value);
+		Rational getDeltaPart();
 
-	/**
-     * 
-     * @param _value
-     * @return
-     */
-	TRational operator +( const TRational& _value) const;
 
-	/**
-     * 
-     * @param _value
-     */
-	void operator +=( const TRational& _value );
+		/****************************************
+		OVERLOADING THE COMPARISON OPERATORS 
+		******************************************/
 
+		/**
+	     * 
+	     * @param _value
+	     * @return
+	     */
+	     TRational& operator=(const TRational& _value);
+
+		/**
+	     * 
+	     * @param _value
+	     * @return
+	     */
+	     TRational operator +( const TRational& _value) const;
+
+		/**
+	     * 
+	     * @param _value
+	     */
+	     void operator +=( const TRational& _value );
+
+
+		/**
+	     * @param _value
+	     * @return
+	     */
+	     TRational operator -( const TRational& _value ) const;
+
+		/**
+	     * 
+	     * @param _value
+	     */
+	     void operator -=( const TRational& _value );
+
+		/**
+	     * 
+	     * @param _a
+	     * @return
+	     */
+	     TRational operator *( const Rational& _a ) const;
+
+		/**
+	     * 
+	     * @param _value
+	     */
+	     void operator *=( const TRational& _value );
+
+	    /**
+	     * 
+	     * @param _a
+	     */
+	     void operator *=( const Rational& _a );
+
+	    /**
+	     * 
+	     * @param _a
+	     * @return 
+	     */
+	     TRational operator /( const Rational& _a ) const;
+
+	    /**
+	     * 
+	     * @param _a
+	     */
+	     void operator /=( const Rational& _a );
+
+	    /**
+	     * 
+	     * @param _value
+	     * @return 
+	     */
+	     bool operator <( const TRational& _value ) const;
+	     bool operator >( const TRational& _value ) const
+	     {
+	     	return _value < *this;
+	     }
+
+	    /**
+	     * 
+	     * @param _value
+	     * @return 
+	     */
+	     bool operator <=( const TRational& _value ) const;
+	     bool operator >=( const TRational& _value ) const
+	     {
+	     	return _value <= *this;
+	     }
+
+	    /**
+	     * 
+	     * @param _value
+	     * @return 
+	     */
+	     bool operator ==( const TRational& _value ) const;
+	     bool operator !=( const TRational& _value ) const
+	     {
+	     	return !(*this == _value);
+	     }
+
+	    /**
+	     * 
+	     * @param _a
+	     * @return 
+	     */
+	     bool operator ==( const Rational& _a ) const;
+	     bool operator !=( const Rational& _a ) const
+	     {
+	     	return !(*this == _a);
+	     }
+
+	    /**
+	     * 
+	     * @param _a
+	     * @return 
+	     */
+	     bool operator <( const Rational& _a ) const;
+
+	    /**
+	     * 
+	     * @param _a
+	     * @return 
+	     */
+	     bool operator >( const Rational& _a ) const;
+
+	    /**
+	     * 
+	     * @param _a
+	     * @return 
+	     */
+	     bool operator <=( const Rational& _a ) const;
+
+	    /**
+	     * 
+	     * @param _a
+	     * @return 
+	     */
+	     bool operator >=( const Rational& _a ) const;
+		/*
+		*
+		*/
+		TRational(const Rational& rationalPart, const Rational& deltaPart);
+		
+		/*
+		*
+		*/
+		TRational(const Rational& rationalPart);
+		
+		/*
+		* Default constructor
+		*/
+		TRational();
+		
+
+		virtual ~TRational();
 	
-	/**
-     * @param _value
-     * @return
-     */
-	TRational operator -( const TRational& _value ) const;
+		};
 
-	/**
-     * 
-     * @param _value
-     */
-	void operator -=( const TRational& _value );
-
-	/**
-     * 
-     * @param _a
-     * @return
-     */
-	TRational operator *( const Rational& _a ) const;
-
-	/**
-     * 
-     * @param _value
-     */
-	void operator *=( const Value<T>& _value );
-                
-    /**
-     * 
-     * @param _a
-     */
-     void operator *=( const Rational& _a );
-
-    /**
-     * 
-     * @param _a
-     * @return 
-     */
-     TRational operator /( const Rational& _a ) const;
-
-    /**
-     * 
-     * @param _a
-     */
-     void operator /=( const Rational& _a );
-
-    /**
-     * 
-     * @param _value
-     * @return 
-     */
-     bool operator <( const TRational& _value ) const;
-     bool operator >( const TRational& _value ) const
-     {
-     	return _value < *this;
-     }
-
-    /**
-     * 
-     * @param _value
-     * @return 
-     */
-     bool operator <=( const TRational& _value ) const;
-     bool operator >=( const TRational& _value ) const
-     {
-     	return _value <= *this;
-     }
-
-    /**
-     * 
-     * @param _value
-     * @return 
-     */
-     bool operator ==( const TRational& _value ) const;
-     bool operator !=( const TRational& _value ) const
-     {
-     	return !(*this == _value);
-     }
-
-    /**
-     * 
-     * @param _a
-     * @return 
-     */
-     bool operator ==( const Rational& _a ) const;
-     bool operator !=( const Rational& _a ) const
-     {
-     	return !(*this == _a);
-     }
-
-    /**
-     * 
-     * @param _a
-     * @return 
-     */
-     bool operator <( const Rational& _a ) const;
-
-    /**
-     * 
-     * @param _a
-     * @return 
-     */
-     bool operator >( const Rational& _a ) const;
-
-    /**
-     * 
-     * @param _a
-     * @return 
-     */
-     bool operator <=( const Rational& _a ) const;
-
-    /**
-     * 
-     * @param _a
-     * @return 
-     */
-     bool operator >=( const Rational& _a ) const;
-	/*
-	*
-	*/
-	TRational(const Rational& rationalPart, const Rational& deltaPart);
-	
-	/*
-	*
-	*/
-	TRational(const Rational& rationalPart);
-	
-	/*
-	* Default constructor
-	*/
-	TRational();
-	
-
-	virtual ~TRational();
-	
-};
+}
