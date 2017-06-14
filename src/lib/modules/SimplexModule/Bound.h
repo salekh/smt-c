@@ -4,7 +4,7 @@ namespace smtrat
 {
 	struct Bound
 	{
-		enum State { none, infinity, minus_infinity };
+		enum State { none, pos_infinity, neg_infinity };
 		
 		public:
 			bool upperBound;

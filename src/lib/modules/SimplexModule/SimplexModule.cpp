@@ -35,11 +35,20 @@
 	void SimplexModule<Settings>::init()
 	{}
 	
-	template<class Settings>
+	/** This function is called each iteration of the theory solver
+    * The SAT solver passes on a subset of all formulas. This set has to be checked on
+    * feasability. Since the theory solver has all formulas, it can work with the subset
+    * of these formulas to activate by activating each formula in the Tableau of the
+    * theory solver
+    *
+    * addCore activates a formula
+    */
+
+    template<class Settings>
 	bool SimplexModule<Settings>::addCore( ModuleInput::const_iterator _subformula )
 	{
 		//Checks if tableau is initialized
-		//If not initialized, then pass it to tableau class to collect the formulae
+		//If not initialized, then pass it to tableau class to collect the formulas
 
 		tableau.createCheckpointBounds();
 
@@ -53,6 +62,11 @@
 		SMTRAT_LOG_INFO("smtrat.my","AddCore returns " << result);
 		return result;
 	}
+
+    /** Analogue removeCore deactivates a formula if it has to be
+    * removed out of the subset of formulas the theory solver
+    * has to check on feasability
+    */
 	
 	template<class Settings>
 	void SimplexModule<Settings>::removeCore( ModuleInput::const_iterator _subformula )
@@ -77,6 +91,17 @@
 		}
 	}
 	
+    /** This functions checks the feasability of the set of formulas
+    * if they are satisfiable with the current variable 
+    * assignments
+    * 
+    * If they are SAT, the SAT solver returns SAT
+    *
+    * If they are UNSAT, the SAT solver recieves the set of
+    * unfeasible formulas and continues to start a 
+    * new iteration or returns UNSAT
+    */
+
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
@@ -157,12 +182,12 @@
 		return Answer::UNKNOWN; // This should be adapted according to your implementation.
 	}
 
-
-
+    //TODO
+    
 	template<class Settings>
 	void SimplexModule<Settings>::createInfisibleSubset(TVariable* x)
 	{
-			SMTRAT_LOG_INFO("smtrat.my","Try to create Infisible Subset");
+			SMTRAT_LOG_INFO("smtrat.my","Try to create Infeasible Subset");
 			//generateTrivialInfeasibleSubset();
 			//return;
 			

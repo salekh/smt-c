@@ -42,7 +42,6 @@
 			//adding the variables into the accumulator set
  			variablesInFormula.insert(varList.begin(),varList.end());
 
- 			//TODO Why "Slack" ?!
 			//Create Slack Variable of TVariable class
  			TVariable* tVar = new TVariable(formula, VariableId , true);
  			VariableId ++;
