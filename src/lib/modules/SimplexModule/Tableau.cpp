@@ -502,6 +502,8 @@
 			delta = min(delta,c->calculateDelta(c->getLowerBound()));
 		}
 		
+		SMTRAT_LOG_INFO("smtrat.my","Delta found is " << delta);
+		
 		for (auto const x : varToTVar){
 			carl::Variable origVar = x.first;
 			TVariable* v = x.second;

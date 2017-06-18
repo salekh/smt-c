@@ -61,7 +61,7 @@ namespace smtrat
 	}
 	
 	Rational TVariable::calculateDelta(Bound b){
-		if(value.getDeltaPart() != b.value.getDeltaPart()){
+		if(value.getRationalPart() != b.value.getRationalPart() && value.getDeltaPart() != b.value.getDeltaPart()){
 			Rational top = value.getRationalPart() - b.value.getRationalPart();
 			Rational bottom = value.getDeltaPart() - b.value.getDeltaPart();
 			return abs(top)/abs(bottom);

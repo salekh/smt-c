@@ -83,7 +83,7 @@
 			carl::FastMap<carl::Variable,Rational> map = tableau.getModelValues();
 			
 			for(auto x : map){
-				//mModel.emplace(std::make_pair(x.first, x.second) );
+				mModel.insert(std::make_pair(x.first, x.second) );
 				SMTRAT_LOG_INFO("smtrat.my","\t" << x.first.getName() << " = " << x.second);
 			}
 			
