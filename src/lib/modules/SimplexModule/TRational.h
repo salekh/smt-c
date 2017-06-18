@@ -77,36 +77,36 @@
 
 		/**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     * @return
 	     */
-	     TRational& operator=(const TRational& _value);
+	     TRational& operator=(const TRational& _rational);
 
 		/**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     * @return
 	     */
-	     TRational operator +( const TRational& _value) const;
+	     TRational operator +( const TRational& _rational) const;
 
 		/**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     */
-	     void operator +=( const TRational& _value );
+	     void operator +=( const TRational& _rational );
 
 
 		/**
-	     * @param _value
+	     * @param _rational
 	     * @return
 	     */
-	     TRational operator -( const TRational& _value ) const;
+	     TRational operator -( const TRational& _rational ) const;
 
 		/**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     */
-	     void operator -=( const TRational& _value );
+	     void operator -=( const TRational& _rational );
 
 		/**
 	     * 
@@ -117,9 +117,9 @@
 
 		/**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     */
-	     void operator *=( const TRational& _value );
+	     void operator *=( const TRational& _rational );
 
 	    /**
 	     * 
@@ -142,35 +142,35 @@
 
 	    /**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     * @return 
 	     */
-	     bool operator <( const TRational& _value ) const;
-	     bool operator >( const TRational& _value ) const
+	     bool operator <( const TRational& _rational ) const;
+	     bool operator >( const TRational& _rational ) const
 	     {
-	     	return _value < *this;
+	     	return _rational < *this;
 	     }
 
 	    /**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     * @return 
 	     */
-	     bool operator <=( const TRational& _value ) const;
-	     bool operator >=( const TRational& _value ) const
+	     bool operator <=( const TRational& _rational ) const;
+	     bool operator >=( const TRational& _rational ) const
 	     {
-	     	return _value <= *this;
+	     	return _rational <= *this;
 	     }
 
 	    /**
 	     * 
-	     * @param _value
+	     * @param _rational
 	     * @return 
 	     */
-	     bool operator ==( const TRational& _value ) const;
-	     bool operator !=( const TRational& _value ) const
+	     bool operator ==( const TRational& _rational ) const;
+	     bool operator !=( const TRational& _rational ) const
 	     {
-	     	return !(*this == _value);
+	     	return !(*this == _rational);
 	     }
 
 	    /**

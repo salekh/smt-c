@@ -12,6 +12,7 @@
 #include "../../Common.h"
 #include <Eigen/Dense>
 #include "TVariable.h"
+#include "TRational.h"
 
 namespace smtrat
 {

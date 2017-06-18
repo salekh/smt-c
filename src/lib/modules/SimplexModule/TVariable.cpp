@@ -29,7 +29,8 @@ namespace smtrat
 	}
 	
 	void TVariable::saveValue(){ 
-		lastValue = value; 
+		lastValue->mainPart = value->mainPart;
+		lastValue->deltaPart = value->deltaPart; 
 	}
 	
 	void TVariable::saveBounds(){ 

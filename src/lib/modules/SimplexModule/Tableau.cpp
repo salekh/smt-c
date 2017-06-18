@@ -79,6 +79,20 @@
 					break;
  					
  				}
+
+ 				//TODO Clarify if this suffices. Probably not
+ 				case carl::Relation::GE:
+ 				{
+ 					Bound bound(-constraint.constantPart(),false);
+					boundSet = {bound};
+ 					break;
+ 				}
+ 				case carl::Relation::LE:
+ 				{
+ 					Bound bound(-constraint.constantPart(),true);
+					boundSet = {bound};
+ 					break;
+ 				}
 				default:
 				{
 					assert(false);
@@ -319,7 +333,7 @@
 	 	TVariable* x = formToVar[formula];
 	 	int row = formulaToRow[formula];
 	 	
-		//IMPORTANT Question: update on first assertUpper/Lower can change variable values via update and second assert return false. Is this a problem?
+		//TODO IMPORTANT Question: update on first assertUpper/Lower can change variable values via update and second assert return false. Is this a problem?
 	 	bool result = true;
 		SMTRAT_LOG_INFO("smtrat.my","Activate Row with basic = " << x->getIsBasic() );
 		

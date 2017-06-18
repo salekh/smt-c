@@ -40,35 +40,151 @@ namespace smtrat {
 
 	/**
 	 * 
-	 * @param _value
+	 * @param _rational
 	 * @return
 	*/
-	TRational& TRational::operator=(const TRational& _value){
-		rationalPart = _value.getRationalPart();
-        deltaPart = _value.getDeltaPart();
+	TRational& TRational::operator=(const TRational& _rational){
+		rationalPart = _rational.getRationalPart();
+        deltaPart = _rational.getDeltaPart();
         return *this;
 	}
 
 	/**
      * 
-     * @param _value
+     * @param _rational
      * @return
     */
-    TRational TRational::operator +( const TRational& _value) const{
-		Rational first = rationalPart + _value.getRationalPart();
-        Rational second = deltaPart + _value.getDeltaPart();
+    TRational TRational::operator +( const TRational& _rational) const{
+		Rational first = rationalPart + _rational.getRationalPart();
+        Rational second = deltaPart + _rational.getDeltaPart();
         return TRational(first, second);
     }
 
     /**
      * 
-     * @param _value
+     * @param _rational
     */
- 	void TRational::operator +=( const TRational& _value ){
- 		this->rationalPart += _value.getRationalPart();
-        this->deltaPart += _value.getDeltaPart();
- 	}	
+ 	void TRational::operator +=( const TRational& _rational ){
+ 		this->rationalPart += _rational.getRationalPart();
+        this->deltaPart += _rational.getDeltaPart();
+ 	}
 
+	/**
+     * 
+     * @param _rational
+     * @return
+    */
+    TRational TRational::operator -( const TRational& _rational) const{
+		Rational first = rationalPart - _rational.getRationalPart();
+        Rational second = deltaPart - _rational.getDeltaPart();
+        return TRational(first, second);
+    }
+
+    /**
+     * 
+     * @param _rational
+    */
+ 	void TRational::operator -=( const TRational& _rational ){
+ 		this->rationalPart -= _rational.getRationalPart();
+        this->deltaPart -= _rational.getDeltaPart();
+ 	}
+
+ 	/**
+     * 
+     * @param _rational
+     * @return
+    */
+    TRational TRational::operator *( const Rational& _a) const{
+		Rational first = _a * rationalPart;
+        Rational second = _a * deltaPart;
+        return TRational(first, second);
+    }
+
+    /**
+     * 
+     * @param _rational
+    */
+ 	void TRational::operator *=( const TRational& _rational ){
+ 		this->rationalPart *= _rational.getRationalPart();
+        this->deltaPart *= _rational.getDeltaPart();
+ 	} 	
+
+
+ 	/**
+     * 
+     * @param _rational
+     * @return
+    */
+    void TRational::operator *=( const Rational& _a) {
+		this->rationalPart *= _a;
+		this->deltaPart *= _a;
+    }
+
+	/**
+     * 
+     * @param _rational
+     * @return
+    */
+ 	TRational TRational::operator /( const Rational& _a) const {
+		Rational first = rationalPart / _a;
+        Rational second = deltaPart / _a;
+        return TRational(first, second);
+    }
+
+ 	/**
+     * 
+     * @param _rational
+     * @return
+    */
+    void TRational::operator /=( const Rational& _a) {
+		this->rationalPart *= _a;
+		this->deltaPart *= _a;
+    }
+
+    bool TRational::operator <(const TRational& _rational) const {
+    	if( this->rationalPart < _rational.mainPart() ) {
+            return true;
+        } else if( this->rationalPart == _rational.mainPart() ) {
+            if( this->deltaPart < _rational.deltaPart() ) {
+            	return true;
+			}
+        }
+        return false;
+    }
+
+    bool TRational::operator <=(const TRational& _rational) const {
+    	bool b = false;
+        if( (this->MainPart < _rational.mainPart()) || (this->MainPart == _rational.mainPart() && this->DeltaPart <= _rational.deltaPart()) )
+            b = true;
+        return b;
+    }
+
+    bool TRational::operator ==(const TRational& _rational) const {
+    	bool b = false;
+        if((this->MainPart == _rational.mainPart() && this->DeltaPart <= _rational.deltaPart()))
+            b = true;
+        return b;
+    }
+
+    bool TRational::operator ==(const Rational& _a) const {
+    	return (this->mainPart == _a && this->deltaPart == 0)
+    }
+
+    bool TRational::operator <(const Rational& _a) const {
+    	return ((this->mainPart < _a) || (this->mainPart == _a && this->deltaPart < 0))
+    }
+
+    bool TRational::operator >(const Rational& _a) const {
+    	return ((this->mainPart > _a) || (this->mainPart == _a && this->deltaPart > 0))
+    }
+
+    bool TRational::operator <=(const Rational& _a) const {
+    	return ((this->mainPart < _a) || (this->mainPart == _a && this->deltaPart <= 0))
+    }
+
+    bool TRational::operator >=(const Rational& _a) const {
+    	return ((this->mainPart > _a) || (this->mainPart == _a && this->deltaPart >= 0))
+    }
 
 } // smtrat
 

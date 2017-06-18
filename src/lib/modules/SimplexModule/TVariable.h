@@ -2,6 +2,7 @@
 #include "../../Common.h"
 #include "Bound.h"
 #include <limits>
+#include "TRational.h"
 
 
 namespace smtrat
@@ -18,10 +19,10 @@ namespace smtrat
 				carl::Variable original;
 				FormulaT formula;
 				
-				Rational value = 0;
+				TRational value->mainPart = 0;
 				
 				//Is stored after succesfull check, to reset for backtrace
-				Rational lastValue = 0;
+				TRational lastValue->mainPart = 0;
 				
 				
 				Bound upperBound;
