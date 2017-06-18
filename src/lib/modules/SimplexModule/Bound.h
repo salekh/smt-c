@@ -1,4 +1,5 @@
 #include "../../Common.h"
+#include "TRational.h"
 
 namespace smtrat
 {
@@ -8,12 +9,12 @@ namespace smtrat
 		
 		public:
 			bool upperBound;
-			Rational value;
+			TRational value;
 			State state = none;
 			
 			Bound(){}
 			
-			Bound(Rational boundValue, bool isUpperBound){
+			Bound(TRational boundValue, bool isUpperBound){
 				upperBound = isUpperBound;
 				value = boundValue;
 			}

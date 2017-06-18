@@ -12,7 +12,6 @@
 #include "../../Common.h"
 #include <Eigen/Dense>
 #include "TVariable.h"
-#include "TRational.h"
 
 namespace smtrat
 {
@@ -61,7 +60,7 @@ namespace smtrat
 					Tableau(std::list<FormulaT> formulas);
 					
 					//methods as described in the paper
-					void pivotAndUpdate(TVariable* v1, TVariable* v2, Rational r);
+					void pivotAndUpdate(TVariable* v1, TVariable* v2, TRational r);
 					
 					void pivot(int rowPos, int columnPos);
 					
@@ -88,7 +87,7 @@ namespace smtrat
 					//isBasic: weather the function is called on all basic or all nonbasic variables.
 					// function f takes a TVariable, a matrix value and returns a bool
 					// returns a TVariable if found, otherwise a nullpointer
-					TVariable* findSmallestVariable(std::function<bool(TVariable*,Rational)> func, int helper, bool isBasic);
+					TVariable* findSmallestVariable(std::function<bool(TVariable*,TRational)> func, int helper, bool isBasic);
 					
 					
 					std::set<TVariable*> findConflictVariables(TVariable* v);

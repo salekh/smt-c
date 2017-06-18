@@ -59,37 +59,35 @@
  			{
 				case carl::Relation::EQ:
 				{
-					Bound bound1(-constraint.constantPart(),false);
-					Bound bound2(-constraint.constantPart(),true);
+					Bound bound1(TRational(-constraint.constantPart()),false);
+					Bound bound2(TRational(-constraint.constantPart()),true);
 					boundSet = {bound1, bound2};
 					break;
 				}
 				
  				case carl::Relation::GEQ:
  				{
-					Bound bound(-constraint.constantPart(),false);
+					Bound bound(TRational(-constraint.constantPart()),false);
 					boundSet = {bound};
 					break;
 					
  				}
  				case carl::Relation::LEQ:
  				{
-					Bound bound(-constraint.constantPart(),true);
+					Bound bound(TRational(-constraint.constantPart()),true);
 					boundSet = {bound};
 					break;
  					
  				}
-
- 				//TODO Clarify if this suffices. Probably not
- 				case carl::Relation::GE:
+ 				case carl::Relation::GREATER:
  				{
- 					Bound bound(-constraint.constantPart(),false);
+ 					Bound bound(TRational(-constraint.constantPart(),1),false);
 					boundSet = {bound};
  					break;
  				}
- 				case carl::Relation::LE:
+ 				case carl::Relation::LESS:
  				{
- 					Bound bound(-constraint.constantPart(),true);
+ 					Bound bound(TRational(-constraint.constantPart(),-1),true);
 					boundSet = {bound};
  					break;
  				}
@@ -154,7 +152,7 @@
  				//If not, set entry to 0
  				if(formula.constraint().hasVariable(var)){
  					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
- 					Rational _coeffValue = Rational( coeff.lcoeff() );
+ 					Rational _coeffValue = coeff.lcoeff();
  					
  					//cout << coeff << "\t"; 
  					//SMTRAT_LOG_INFO("smtrat.my",coeff << "\t");
@@ -183,9 +181,9 @@
 	{
 		for(int i=0;i<rowVars.size();i++){
 							
-			Rational sum = 0;
+			TRational sum = TRational(0);
 			for(int a=0;a<columnVars.size();a++){
-				sum += matrix(i, a)*columnVars[a]->getValue();
+				sum += columnVars[a]->getValue()*matrix(i, a);
 			}
 			if(sum != rowVars[i]->getValue()){
 				SMTRAT_LOG_WARN("smtrat.my", "VALUE ERROR in Matrix Row " << i << " (starting with 0)");
@@ -223,21 +221,21 @@
  		columnVars[columnPos]->setPositionMatrixX(rowVars[rowPos]->getPositionMatrixX());
  		
 		//Change values in matrix
- 		Rational factor = Rational(matrix(rowPos,columnPos));
+ 		Rational factor = matrix(rowPos,columnPos);
  		
  		for(int y=0;y<matrix.rows();y++){
  			
 			//For the row where the variable is swapped
  			if(rowPos != y){ 
  				
- 				Rational factorRow = Rational(matrix(y,columnPos));
+ 				Rational factorRow = matrix(y,columnPos);
  				
  				for(int x=0;x<matrix.cols();x++){
  					
  					if(columnPos == x){
- 						matrix(y,x) = Rational((1/factor)*factorRow);
+ 						matrix(y,x) = (1/factor)*factorRow;
  					}else{
- 						matrix(y,x) -= Rational( (matrix(rowPos,x)/factor)*factorRow);
+ 						matrix(y,x) -= (matrix(rowPos,x)/factor)*factorRow;
  					}
  				}
  			}
@@ -248,9 +246,9 @@
 		for(int x=0;x<matrix.cols();x++){
  					
 			if(columnPos == x){
-				matrix(y,x) = Rational(1/factor);
+				matrix(y,x) = 1/factor;
 			}else{
-				matrix(y,x) /= Rational(-factor);
+				matrix(y,x) /= -factor;
 			}
  					
  		}
@@ -267,7 +265,7 @@
 	 * Bruno Duterte and Leonardo de Moura
 	 */
 	 
-	 void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, Rational v)
+	 void Tableau::pivotAndUpdate(TVariable* xi, TVariable* xj, TRational v)
 	 {
 	 	//cout << "pivotAndUpdate xi " << xi->getName() << " xj " << xj->getName() << " v " << v << endl;
 	 	SMTRAT_LOG_INFO("smtrat.my", "PivotAndUpdate xi: " << xi->getName() << " xj: " << xj->getName() << " v: " << v)
@@ -279,8 +277,8 @@
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
 	 	
-		Rational theta = (Rational(v)-xi->getValue())/matrix(i, j); 
-		xi->setValue(Rational(v));
+		TRational theta = (TRational(v)-xi->getValue())/matrix(i, j); 
+		xi->setValue(TRational(v));
 		xj->setValue(xj->getValue()+theta);
 		
 		SMTRAT_LOG_INFO( "smtrat.my","theta " << theta );
@@ -317,7 +315,7 @@
 	 	int column = x->getPositionMatrixX();
 	 	for(auto basic : rowVars){
 	 		int row = basic->getPositionMatrixY(); 
-	 		basic->setValue(basic->getValue() + matrix(row,column)*(b.value-x->getValue()));
+	 		basic->setValue(basic->getValue() + (b.value-x->getValue())*matrix(row,column));
 	 	}
 	 	
 	 	x->setValue(b.value);
@@ -428,7 +426,7 @@
 	 
 	 
 	 
-	 TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, Rational)> func, int pos, bool isBasic)
+	 TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, TRational)> func, int pos, bool isBasic)
 	 {
 	 	int smallestId = INT_MAX;
 	 	TVariable* t = nullptr;
@@ -492,10 +490,22 @@
 		carl::FastMap<carl::Variable,Rational> map;
 		
 		
+		Rational delta = 1;
+		
+		for(auto c : columnVars){
+			delta = min(delta,c->calculateDelta(c->getUpperBound()));
+			delta = min(delta,c->calculateDelta(c->getLowerBound()));
+		}
+		
+		for(auto c : rowVars){
+			delta = min(delta,c->calculateDelta(c->getUpperBound()));
+			delta = min(delta,c->calculateDelta(c->getLowerBound()));
+		}
+		
 		for (auto const x : varToTVar){
 			carl::Variable origVar = x.first;
 			TVariable* v = x.second;
-			map[origVar] = v->getValue();
+			map[origVar] = v->getValue().getRationalPart()+v->getValue().getDeltaPart()*delta;
 		}
 		
 	 	return map;

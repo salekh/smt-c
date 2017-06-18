@@ -10,8 +10,8 @@ namespace smtrat
 		isBasic = pIsBasic;
 		formula = form;
 		
-		upperBound = Bound(Rational(10000000), true);   //TODO real Infinity
-		lowerBound = Bound(Rational(-10000000), false);
+		upperBound = Bound(TRational(10000000), true);   //TODO real Infinity
+		lowerBound = Bound(TRational(-10000000), false);
 		
 		isSlack = true;
 	}
@@ -22,15 +22,14 @@ namespace smtrat
 		id = pId;
 		isBasic = pIsBasic;
 		
-		upperBound = Bound(Rational(10000000), true);   //TODO real Infinity
-		lowerBound = Bound(Rational(-10000000), false);
+		upperBound = Bound(TRational(10000000), true);   //TODO real Infinity
+		lowerBound = Bound(TRational(-10000000), false);
 		
 		isSlack=false;
 	}
 	
 	void TVariable::saveValue(){ 
-		lastValue->mainPart = value->mainPart;
-		lastValue->deltaPart = value->deltaPart; 
+		lastValue = value;
 	}
 	
 	void TVariable::saveBounds(){ 
@@ -61,8 +60,13 @@ namespace smtrat
 		lowerBound = b;
 	}
 	
-	void TVariable::backtrack(){
-		
+	Rational TVariable::calculateDelta(Bound b){
+		if(value.getDeltaPart() != b.value.getDeltaPart()){
+			Rational top = value.getRationalPart() - b.value.getRationalPart();
+			Rational bottom = value.getDeltaPart() - b.value.getDeltaPart();
+			return abs(top)/abs(bottom);
+		}
+		return 1;
 	}
 	
 	std::string TVariable::getName(){

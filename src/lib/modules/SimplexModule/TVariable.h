@@ -2,7 +2,6 @@
 #include "../../Common.h"
 #include "Bound.h"
 #include <limits>
-#include "TRational.h"
 
 
 namespace smtrat
@@ -19,10 +18,10 @@ namespace smtrat
 				carl::Variable original;
 				FormulaT formula;
 				
-				TRational value->mainPart = 0;
+				TRational value;
 				
 				//Is stored after succesfull check, to reset for backtrace
-				TRational lastValue->mainPart = 0;
+				TRational lastValue;
 				
 				
 				Bound upperBound;
@@ -55,16 +54,13 @@ namespace smtrat
 				
 				void changeLowerBound(Bound b);
 				
-				//reset bounds, loads old value
-				void backtrack();
-				
 				int getId() { return id; };
 				
 				bool getIsBasic(){return isBasic; };
 				void setIsBasic(bool basic){this->isBasic = basic;}
 				
-				Rational getValue() { return value; };
-				void setValue(Rational r) { value = r; };
+				TRational getValue() { return value; };
+				void setValue(TRational r) { value = r; };
 				
 				//Stores and load value/bounds
 				void saveValue();
@@ -82,5 +78,7 @@ namespace smtrat
 				FormulaT& getFormula() { return formula; };
 				
 				std::string getName();
+				
+				Rational calculateDelta(Bound b);
 		};
 }

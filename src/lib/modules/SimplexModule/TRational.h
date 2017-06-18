@@ -5,11 +5,11 @@
  * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
  *
  */
+ 
+ #pragma once
 
-#include <stack>
 #include "../../Common.h"
-#include "Bound.h"
-#include <limits>
+#include <sstream>
 
  namespace smtrat{
 
@@ -20,12 +20,12 @@
 		/**
 		* Rational Part (for weak inequalities)
 		*/
-		Rational rationalPart;
+		Rational rationalPart=0;
 
 		/*
 		* Delta Part (for strict inequalities)
 		*/	
-		Rational deltaPart;
+		Rational deltaPart=0;
 
 	public:
 		
@@ -211,7 +211,11 @@
 	     * @return 
 	     */
 	     bool operator >=( const Rational& _a ) const;
-	
+		 
+		
+			friend std::ostream& operator<<( std::ostream& stream, const TRational& t );
 		};
+		
+		
 
 }

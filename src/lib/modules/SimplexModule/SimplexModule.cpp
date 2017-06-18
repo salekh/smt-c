@@ -119,7 +119,7 @@
 				tableau.print();
 			#endif
 			
-			std::function<bool(TVariable*,Rational)> func = [](TVariable* v, Rational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
+			std::function<bool(TVariable*,TRational)> func = [](TVariable* v, TRational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
 			TVariable* x = tableau.findSmallestVariable(func, 0, true);
 			
 			if(x == nullptr){
@@ -137,7 +137,7 @@
 					
 					SMTRAT_LOG_INFO("smtrat.my","Condition 1 (value < lowerBound)");
 					
-					func = [](TVariable* v, Rational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
+					func = [](TVariable* v, TRational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
 						|| (a<0 && v->getValue()>v->getLowerBound().value);  };
 						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
@@ -148,13 +148,13 @@
 						
 						SMTRAT_LOG_INFO("smtrat.my","Smallest nonbasic var (such that (aij > 0 and value < u_Bound) or (aij < 0 and value > l_Bound )) is " << b->getName() << " with id " << b->getId());
 
-						tableau.pivotAndUpdate(x, b, Rational(x->getLowerBound().value));
+						tableau.pivotAndUpdate(x, b, TRational(x->getLowerBound().value));
 					}
 
 					if(x->getValue() > x->getUpperBound().value){
 						SMTRAT_LOG_INFO("smtrat.my","Condition 2 (value > upperBound)");
 
-						func = [](TVariable* v, Rational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
+						func = [](TVariable* v, TRational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
 							|| (a>0 && v->getValue()>v->getLowerBound().value);  };
 							TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
@@ -165,7 +165,7 @@
 							
 							SMTRAT_LOG_INFO("smtrat.my","Smallest nonbasic var (such that (aij < 0 and value < u_Bound) or (aij > 0 and value > l_Bound )) is " << b->getName() << " with id " << b->getId());
 
-							tableau.pivotAndUpdate(x, b, Rational(x->getUpperBound().value));
+							tableau.pivotAndUpdate(x, b, TRational(x->getUpperBound().value));
 						}
 
 						//return Answer::UNKNOWN;

@@ -5,8 +5,7 @@
  * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
  *
  */
-
-#pragma once
+ #pragma once
 
 #include "TRational.h"
 
@@ -142,10 +141,10 @@ namespace smtrat {
     }
 
     bool TRational::operator <(const TRational& _rational) const {
-    	if( this->rationalPart < _rational.mainPart() ) {
+    	if( this->rationalPart < _rational.getRationalPart() ) {
             return true;
-        } else if( this->rationalPart == _rational.mainPart() ) {
-            if( this->deltaPart < _rational.deltaPart() ) {
+        } else if( this->rationalPart == _rational.getRationalPart() ) {
+            if( this->deltaPart < _rational.getDeltaPart() ) {
             	return true;
 			}
         }
@@ -154,38 +153,44 @@ namespace smtrat {
 
     bool TRational::operator <=(const TRational& _rational) const {
     	bool b = false;
-        if( (this->MainPart < _rational.mainPart()) || (this->MainPart == _rational.mainPart() && this->DeltaPart <= _rational.deltaPart()) )
+        if( (this->rationalPart < _rational.getRationalPart()) || (this->rationalPart == _rational.getRationalPart() && this->deltaPart <= _rational.getDeltaPart()) )
             b = true;
         return b;
     }
 
     bool TRational::operator ==(const TRational& _rational) const {
     	bool b = false;
-        if((this->MainPart == _rational.mainPart() && this->DeltaPart <= _rational.deltaPart()))
+        if((this->rationalPart == _rational.getRationalPart() && this->deltaPart <= _rational.getDeltaPart()))
             b = true;
         return b;
     }
 
     bool TRational::operator ==(const Rational& _a) const {
-    	return (this->mainPart == _a && this->deltaPart == 0)
+    	return (this->rationalPart == _a && this->deltaPart == 0);
     }
 
     bool TRational::operator <(const Rational& _a) const {
-    	return ((this->mainPart < _a) || (this->mainPart == _a && this->deltaPart < 0))
+    	return ((this->rationalPart < _a) || (this->rationalPart == _a && this->deltaPart < 0));
     }
 
     bool TRational::operator >(const Rational& _a) const {
-    	return ((this->mainPart > _a) || (this->mainPart == _a && this->deltaPart > 0))
+    	return ((this->rationalPart > _a) || (this->rationalPart == _a && this->deltaPart > 0));
     }
 
     bool TRational::operator <=(const Rational& _a) const {
-    	return ((this->mainPart < _a) || (this->mainPart == _a && this->deltaPart <= 0))
+    	return ((this->rationalPart < _a) || (this->rationalPart == _a && this->deltaPart <= 0));
     }
 
     bool TRational::operator >=(const Rational& _a) const {
-    	return ((this->mainPart > _a) || (this->mainPart == _a && this->deltaPart >= 0))
+    	return ((this->rationalPart > _a) || (this->rationalPart == _a && this->deltaPart >= 0));
     }
 
+
+	std::ostream& operator<<( std::ostream& stream, const TRational& t)
+	{
+		stream << t.getRationalPart() << "(" << t.getDeltaPart() << ")";
+		return stream;
+	}
 } // smtrat
 
 
