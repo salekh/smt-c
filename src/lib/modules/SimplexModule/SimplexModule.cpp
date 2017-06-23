@@ -27,6 +27,18 @@
 	template<class Settings>
  	bool SimplexModule<Settings>::informCore( const FormulaT& _constraint )
  	{
+		
+		//If the formula contains not equals, do not add it to the tableau and instead create formula > or <
+		if( _constraint.constraint().relation() == carl::Relation::NEQ){
+
+			FormulaT formulaSmaler = FormulaT(_constraint.constraint().lhs(), carl::Relation::LESS);
+			FormulaT formulaLarger = FormulaT(_constraint.constraint().lhs(), carl::Relation::GREATER);
+			FormulaT formula = FormulaT(carl::FormulaType::OR, formulaSmaler, formulaLarger );
+			addLemma(formula);
+			
+			return true;
+		}
+		
  		listFormulas.push_back(_constraint);
 		return true; // This should be adapted according to your implementation.
 	}
@@ -47,6 +59,13 @@
     template<class Settings>
 	bool SimplexModule<Settings>::addCore( ModuleInput::const_iterator _subformula )
 	{
+		
+		//Ignore formulas that contain not equals and return true
+		//informCore already creates an additional formula via > or <
+		//%TODO save this information in variable to speed up next checkCore?
+		if(_subformula->formula().constraint().relation() == carl::Relation::NEQ){
+			return true;
+		}
 		//Checks if tableau is initialized
 		//If not initialized, then pass it to tableau class to collect the formulas
 
