@@ -30,6 +30,7 @@ namespace smtrat
 			bool tableauInitialized = false;
 			
 			NeqHelper neqHelper;
+			bool addedNeq=false;
 			
 			// Members.
 			

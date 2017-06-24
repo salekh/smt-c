@@ -30,13 +30,16 @@
 		//If the formula contains not equals, do not add it to the tableau and instead create formula > or <
 		if( _constraint.constraint().relation() == carl::Relation::NEQ){
 			
+			
 			FormulaT formulaSmaler = FormulaT(_constraint.constraint().lhs(), carl::Relation::LESS);
 			FormulaT formulaLarger = FormulaT(_constraint.constraint().lhs(), carl::Relation::GREATER);
 			FormulaT formula = FormulaT(carl::FormulaType::OR, formulaSmaler, formulaLarger );
-			addLemma(formula);
+			
+			// != implies < or >
+			addLemma(FormulaT(carl::FormulaType::IMPLIES, _constraint, formula ));
 			
 			neqHelper.informNeq(_constraint, formulaSmaler, formulaLarger);
-			
+
 			return true;
 		}
 		
@@ -63,20 +66,19 @@
 		
 		//Ignore formulas that contain not equals and return true
 		//informCore already creates an additional formula via > or <
-		//%TODO save this information in variable to speed up next checkCore?
 		if(neqHelper.addFormula(_subformula->formula())){
 			return true;
 		}
 		
 		//Checks if tableau is initialized
 		//If not initialized, then pass it to tableau class to collect the formulas
-
-		tableau.createCheckpointBounds();
+		
 
 		if(tableauInitialized == false){
 			tableauInitialized = true;
 			tableau = Tableau(listFormulas);
 		}
+		tableau.createCheckpointBounds();
 		
 		bool result = tableau.activateRow(_subformula->formula());
 		
@@ -93,7 +95,9 @@
 	void SimplexModule<Settings>::removeCore( ModuleInput::const_iterator _subformula )
 	{
 		//Not equals formulas are ignored
-		neqHelper.removeForumula(_subformula->formula());
+		if(neqHelper.removeForumula(_subformula->formula())){
+			return;
+		}
 		
 		tableau.deactivateRow(_subformula->formula());
 	}
@@ -129,9 +133,11 @@
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
+		//if it contains a "not equals" formula, but not a < or > version of this formula, then abort checkCore with unknown
 		if(neqHelper.containsProblemFormula()){
 			return Answer::UNKNOWN;
 		}
+		
 		
 		//Used only for testing to prevent an infinite loop!
 		#if defined DEVELOPPER
