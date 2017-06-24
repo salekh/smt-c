@@ -13,6 +13,7 @@
 #include "SimplexStatistics.h"
 #include "SimplexSettings.h"
 #include "Tableau.h"
+#include "NeqHelper.h"
 
 namespace smtrat
 {
@@ -27,6 +28,8 @@ namespace smtrat
 			std::list<FormulaT> listFormulas = { };
 			Tableau tableau;
 			bool tableauInitialized = false;
+			
+			NeqHelper neqHelper;
 			
 			// Members.
 			

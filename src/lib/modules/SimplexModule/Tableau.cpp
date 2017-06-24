@@ -104,9 +104,9 @@
  			//Create Bound as the negative constant part of the formula.
  			//E.g x + y -5 <= 0
  			//Bound is +5
- 			 
- 			
- 			SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << -constraint.constantPart() );
+ 			 for(Bound b : boundSet){
+				 SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << b.value << " isUpperBound: " << b.upperBound);
+			 }
  			//cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
  			
  			formulaToBound[formula] = boundSet;

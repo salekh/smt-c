@@ -27,14 +27,15 @@
 	template<class Settings>
  	bool SimplexModule<Settings>::informCore( const FormulaT& _constraint )
  	{
-		
 		//If the formula contains not equals, do not add it to the tableau and instead create formula > or <
 		if( _constraint.constraint().relation() == carl::Relation::NEQ){
-
+			
 			FormulaT formulaSmaler = FormulaT(_constraint.constraint().lhs(), carl::Relation::LESS);
 			FormulaT formulaLarger = FormulaT(_constraint.constraint().lhs(), carl::Relation::GREATER);
 			FormulaT formula = FormulaT(carl::FormulaType::OR, formulaSmaler, formulaLarger );
 			addLemma(formula);
+			
+			neqHelper.informNeq(_constraint, formulaSmaler, formulaLarger);
 			
 			return true;
 		}
@@ -63,9 +64,10 @@
 		//Ignore formulas that contain not equals and return true
 		//informCore already creates an additional formula via > or <
 		//%TODO save this information in variable to speed up next checkCore?
-		if(_subformula->formula().constraint().relation() == carl::Relation::NEQ){
+		if(neqHelper.addFormula(_subformula->formula())){
 			return true;
 		}
+		
 		//Checks if tableau is initialized
 		//If not initialized, then pass it to tableau class to collect the formulas
 
@@ -90,6 +92,9 @@
 	template<class Settings>
 	void SimplexModule<Settings>::removeCore( ModuleInput::const_iterator _subformula )
 	{
+		//Not equals formulas are ignored
+		neqHelper.removeForumula(_subformula->formula());
+		
 		tableau.deactivateRow(_subformula->formula());
 	}
 	
@@ -124,6 +129,10 @@
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
+		if(neqHelper.containsProblemFormula()){
+			return Answer::UNKNOWN;
+		}
+		
 		//Used only for testing to prevent an infinite loop!
 		#if defined DEVELOPPER
 			int limit = 10;
