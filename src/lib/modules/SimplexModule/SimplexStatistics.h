@@ -26,15 +26,15 @@ namespace smtrat
 		// Override Statistics::collect.
 		void collect()
 		{
-		   Statistics::addKeyValuePair( "example_statistic", mExampleStatistic );
+			Statistics::addKeyValuePair( "example_statistic", mExampleStatistic );
 		}
 		void foo()
 		{
 			++mExampleStatistic;
 		}
 		SimplexStatistics( const std::string& _statisticName ):
-			Statistics( _statisticName, this ),
-			mExampleStatistic( 0 )
+		Statistics( _statisticName, this ),
+		mExampleStatistic( 0 )
 		{}
 		~SimplexStatistics() {}
 	};
