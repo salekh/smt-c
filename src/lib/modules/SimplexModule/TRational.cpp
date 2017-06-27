@@ -15,20 +15,28 @@ namespace smtrat {
 				CONSTRUCTORS
 	**************************************/
 
+    //Constructor for "zero" object
+
 	TRational::TRational():
 		rationalPart(0),
 		deltaPart(0)
 	{}
+
+    //Constructor for objects without strict inequalities
 
 	TRational::TRational(const Rational& rational):
 		rationalPart(rational),
 		deltaPart(0)
 	{}
 
+    //Constructor for objects with strict equalities
+
 	TRational::TRational(const Rational& rational, const Rational& delta):
 		rationalPart(rational),
 		deltaPart(delta)
 	{}
+
+    //Empty constructor
 
 	TRational::~TRational(){}
 
@@ -38,59 +46,59 @@ namespace smtrat {
 	**************************************/
 
 	/**
-	 * 
-	 * @param _rational
+	 * Equals operation
+	 * @param _trational
 	 * @return
 	*/
-	TRational& TRational::operator=(const TRational& _rational){
-		rationalPart = _rational.getRationalPart();
-        deltaPart = _rational.getDeltaPart();
+	TRational& TRational::operator=(const TRational& _trational){
+		rationalPart = _trational.getRationalPart();
+        deltaPart = _trational.getDeltaPart();
         return *this;
 	}
 
 	/**
-     * 
-     * @param _rational
+     * Addition TRationals
+     * @param _trational
      * @return
     */
-    TRational TRational::operator +( const TRational& _rational) const{
-		Rational first = rationalPart + _rational.getRationalPart();
-        Rational second = deltaPart + _rational.getDeltaPart();
+    TRational TRational::operator +( const TRational& _trational) const{
+		Rational first = rationalPart + _trational.getRationalPart();
+        Rational second = deltaPart + _trational.getDeltaPart();
         return TRational(first, second);
     }
 
     /**
-     * 
-     * @param _rational
+     * Addition of two TRationals
+     * @param _trational
     */
- 	void TRational::operator +=( const TRational& _rational ){
- 		this->rationalPart += _rational.getRationalPart();
-        this->deltaPart += _rational.getDeltaPart();
+ 	void TRational::operator +=( const TRational& _trational ){
+ 		this->rationalPart += _trational.getRationalPart();
+        this->deltaPart += _trational.getDeltaPart();
  	}
 
 	/**
-     * 
-     * @param _rational
+     * Subtraction of two TRationals
+     * @param _trational
      * @return
     */
-    TRational TRational::operator -( const TRational& _rational) const{
-		Rational first = rationalPart - _rational.getRationalPart();
-        Rational second = deltaPart - _rational.getDeltaPart();
+    TRational TRational::operator -( const TRational& _trational) const{
+		Rational first = rationalPart - _trational.getRationalPart();
+        Rational second = deltaPart - _trational.getDeltaPart();
         return TRational(first, second);
     }
 
     /**
-     * 
-     * @param _rational
+     * Subtraction of two TRationals
+     * @param _trational
     */
- 	void TRational::operator -=( const TRational& _rational ){
- 		this->rationalPart -= _rational.getRationalPart();
-        this->deltaPart -= _rational.getDeltaPart();
+ 	void TRational::operator -=( const TRational& _trational ){
+ 		this->rationalPart -= _trational.getRationalPart();
+        this->deltaPart -= _trational.getDeltaPart();
  	}
 
  	/**
-     * 
-     * @param _rational
+     * Multiplication by value _a
+     * @param _a
      * @return
     */
     TRational TRational::operator *( const Rational& _a) const{
@@ -100,18 +108,18 @@ namespace smtrat {
     }
 
     /**
-     * 
-     * @param _rational
+     * Multiplication of two TRational values
+     * @param _trational
     */
- 	void TRational::operator *=( const TRational& _rational ){
- 		this->rationalPart *= _rational.getRationalPart();
-        this->deltaPart *= _rational.getDeltaPart();
+ 	void TRational::operator *=( const TRational& _trational ){
+ 		this->rationalPart *= _trational.getRationalPart();
+        this->deltaPart *= _trational.getDeltaPart();
  	} 	
 
 
  	/**
-     * 
-     * @param _rational
+     * Multiplication by value _a
+     * @param _a
      * @return
     */
     void TRational::operator *=( const Rational& _a) {
@@ -120,8 +128,8 @@ namespace smtrat {
     }
 
 	/**
-     * 
-     * @param _rational
+     * Division by value _a
+     * @param _a
      * @return
     */
  	TRational TRational::operator /( const Rational& _a) const {
@@ -131,60 +139,113 @@ namespace smtrat {
     }
 
  	/**
-     * 
-     * @param _rational
+     * Division by value _a
+     * @param _a
      * @return
     */
     void TRational::operator /=( const Rational& _a) {
-		this->rationalPart *= _a;
-		this->deltaPart *= _a;
+		this->rationalPart /= _a;
+		this->deltaPart /= _a;
     }
 
-    bool TRational::operator <(const TRational& _rational) const {
-    	if( this->rationalPart < _rational.getRationalPart() ) {
+    /**
+     * Strictly smaller as comparison
+     * @param _trational
+     * @return
+    */
+
+    bool TRational::operator <(const TRational& _trational) const {
+    	if( this->rationalPart < _trational.getRationalPart() ) {
             return true;
-        } else if( this->rationalPart == _rational.getRationalPart() ) {
-            if( this->deltaPart < _rational.getDeltaPart() ) {
+        } else if( this->rationalPart == _trational.getRationalPart() ) {
+            if( this->deltaPart < _trational.getDeltaPart() ) {
             	return true;
 			}
         }
         return false;
     }
 
-    bool TRational::operator <=(const TRational& _rational) const {
+    /**
+     * Smaller equals as comparison
+     * @param _trational
+     * @return
+    */
+
+    bool TRational::operator <=(const TRational& _trational) const {
     	bool b = false;
-        if( (this->rationalPart < _rational.getRationalPart()) || (this->rationalPart == _rational.getRationalPart() && this->deltaPart <= _rational.getDeltaPart()) )
+        if( (this->rationalPart < _trational.getRationalPart()) || (this->rationalPart == _trational.getRationalPart() && this->deltaPart <= _trational.getDeltaPart()) )
             b = true;
         return b;
     }
 
-    bool TRational::operator ==(const TRational& _rational) const {
+    /**
+     * Equality comparison
+     * @param _trational
+     * @return
+    */
+
+    bool TRational::operator ==(const TRational& _trational) const {
     	bool b = false;
-        if((this->rationalPart == _rational.getRationalPart() && this->deltaPart <= _rational.getDeltaPart()))
+        if((this->rationalPart == _trational.getRationalPart() && this->deltaPart <= _trational.getDeltaPart()))
             b = true;
         return b;
     }
+
+    /**
+     * Equality comparison for objects without strict inequalities
+     * @param _a
+     * @return
+    */
 
     bool TRational::operator ==(const Rational& _a) const {
     	return (this->rationalPart == _a && this->deltaPart == 0);
     }
 
+    /**
+     * Strictly smaller comparison with Rational _a
+     * @param _a
+     * @return
+    */
+
     bool TRational::operator <(const Rational& _a) const {
     	return ((this->rationalPart < _a) || (this->rationalPart == _a && this->deltaPart < 0));
     }
+
+    /**
+     * Strictly greater comparison with Rational _a
+     * @param _a
+     * @return
+    */
 
     bool TRational::operator >(const Rational& _a) const {
     	return ((this->rationalPart > _a) || (this->rationalPart == _a && this->deltaPart > 0));
     }
 
+    /**
+     * Smaller equals comparison with Rational _a
+     * @param _a
+     * @return
+    */
+
     bool TRational::operator <=(const Rational& _a) const {
     	return ((this->rationalPart < _a) || (this->rationalPart == _a && this->deltaPart <= 0));
     }
+
+    /**
+     * Greater equals comparison with Rational _a
+     * @param _a
+     * @return
+    */
 
     bool TRational::operator >=(const Rational& _a) const {
     	return ((this->rationalPart > _a) || (this->rationalPart == _a && this->deltaPart >= 0));
     }
 
+    /**
+     * Print function
+     * @param t
+     * @return
+    */
 
 	std::ostream& operator<<( std::ostream& stream, const TRational& t)
 	{
