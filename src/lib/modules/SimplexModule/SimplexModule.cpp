@@ -63,6 +63,14 @@
     template<class Settings>
 	bool SimplexModule<Settings>::addCore( ModuleInput::const_iterator _subformula )
 	{
+		//Checks if tableau is initialized
+		//If not initialized, then pass it to tableau class to collect the formulas
+		if(tableauInitialized == false){
+			tableauInitialized = true;
+			tableau = Tableau(listFormulas);
+		}
+		tableau.createCheckpointBounds();
+		
 		
 		//Ignore formulas that contain not equals and return true
 		//informCore already creates an additional formula via > or <
@@ -70,15 +78,6 @@
 			return true;
 		}
 		
-		//Checks if tableau is initialized
-		//If not initialized, then pass it to tableau class to collect the formulas
-		
-
-		if(tableauInitialized == false){
-			tableauInitialized = true;
-			tableau = Tableau(listFormulas);
-		}
-		tableau.createCheckpointBounds();
 		
 		bool result = tableau.activateRow(_subformula->formula());
 		
@@ -94,17 +93,21 @@
 	template<class Settings>
 	void SimplexModule<Settings>::removeCore( ModuleInput::const_iterator _subformula )
 	{
+		tableau.loadCheckpoint();
 		//Not equals formulas are ignored
 		if(neqHelper.removeForumula(_subformula->formula())){
 			return;
 		}
 		
 		tableau.deactivateRow(_subformula->formula());
+		
 	}
 	
 	template<class Settings>
 	void SimplexModule<Settings>::updateModel() const
 	{
+		if(stopModelRecursion == true){return;}
+		
 		mModel.clear();
 		if( solverState() == Answer::SAT )
 		{
@@ -116,6 +119,13 @@
 			}
 			
 			mModelComputed = true;
+			
+			stopModelRecursion=true;
+			if(checkModel() == 0){
+				SMTRAT_LOG_ERROR("smtrat.my","Model does not satisfy formulas!");
+				std::exit(12337);
+			}
+			stopModelRecursion=false;
 		}
 	}
 	
@@ -133,10 +143,7 @@
 	template<class Settings>
 	Answer SimplexModule<Settings>::checkCore()
 	{
-		//if it contains a "not equals" formula, but not a < or > version of this formula, then abort checkCore with unknown
-		if(neqHelper.containsProblemFormula()){
-			return Answer::UNKNOWN;
-		}
+
 		
 		
 		//Used only for testing to prevent an infinite loop!
@@ -161,6 +168,10 @@
 				//Creates Checkpoint, needed for backtracking
 				tableau.createCheckpointValue();
 				
+						//if it contains a "not equals" formula, but not a < or > version of this formula, then abort checkCore with unknown
+				if(neqHelper.containsProblemFormula()){
+					return Answer::UNKNOWN;
+				}
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
 				

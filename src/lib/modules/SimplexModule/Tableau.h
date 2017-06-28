@@ -79,6 +79,8 @@ namespace smtrat
 					//Created everytime befor assertUpper/assertLower is called for Backtracking as described in the paper
 		void createCheckpointBounds();
 		
+		void loadCheckpoint();
+		
 					//Helper function that checks whether the tableau matrix is correct when using the values of the variables
 		void checkTest();
 		

@@ -415,6 +415,10 @@
 		 //rowVars[row]->resetBounds();
 		 
 		 //Load the variable values of the last succesfull sat test (checkpoint)
+
+	 }
+	 
+	 void Tableau::loadCheckpoint(){
 		 for(auto r : rowVars){
 			 r->load();
 		 }
@@ -434,18 +438,19 @@
 	 	if(isBasic){
 	 		
 			for(int i=0;i<rowVars.size();i++){
-				if(rowActive[i]){
+				//if(rowActive[i]){
 					TVariable* r = rowVars[i];
 					
+						//SMTRAT_LOG_INFO("smtrat.my","Check Variable succ " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value);
 					if( func(r, matrix(i, pos))){
-						SMTRAT_LOG_INFO("smtrat.my","Check Variable succ " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value);
+					
 						if(r->getId() < smallestId){
 							smallestId = r->getId();
 							t = r;
 						}
 	 				
 					}
-				}
+				//}
 	 		}
 	 		
 	 	}else{

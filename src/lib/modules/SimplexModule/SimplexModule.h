@@ -28,9 +28,9 @@ namespace smtrat
 			std::list<FormulaT> listFormulas = { };
 			Tableau tableau;
 			bool tableauInitialized = false;
+			mutable bool stopModelRecursion = false;
 			
 			NeqHelper neqHelper;
-			bool addedNeq=false;
 			
 			// Members.
 			
