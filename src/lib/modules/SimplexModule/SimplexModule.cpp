@@ -153,6 +153,8 @@
 			int limit = -1;
 		#endif
 		
+		tableau.checkAndUpdateNonBasic();
+		
 		//Is doing exactly what is described in the paper Check() method
 		while(true){
 			
@@ -187,6 +189,7 @@
 						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 						if(b == nullptr){
+							//generateTrivialInfeasibleSubset();
 							createInfisibleSubset(x);
 							return Answer::UNSAT;
 						}
@@ -204,6 +207,7 @@
 							TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
 
 							if(b == nullptr){
+								//generateTrivialInfeasibleSubset();
 								createInfisibleSubset(x);
 								return Answer::UNSAT;
 							}
@@ -232,7 +236,7 @@
 	template<class Settings>
 	void SimplexModule<Settings>::createInfisibleSubset(TVariable* x)
 	{
-			SMTRAT_LOG_INFO("smtrat.my","Try to create Infeasible Subset");
+			SMTRAT_LOG_INFO("smtrat.my","Try to create Infeasible Subset with " << x->getName());
 			//generateTrivialInfeasibleSubset();
 			//return;
 			
@@ -246,6 +250,7 @@
 				infSubSet.insert(x->getFormula());
 				
 				for(auto y : conflictVars){
+					SMTRAT_LOG_INFO("smtrat.my","Conflict with " << y->getName());
 					infSubSet.insert(y->getFormula());
 				}
 				

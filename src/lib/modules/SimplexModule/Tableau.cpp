@@ -356,6 +356,24 @@
 	 }
 	 
 	 
+	 /**
+	  * Idea: When two formulas are added in a row and after that check is executed
+	  * During check there is a pivot (makes slack variable Nonbasic) for the first formula, but the check fails because of the second formula and now the second formula is replaced
+	  * 	->  because of remove the variable bounds are reset. This means the slack variable of the first formula is no longer in its bounds
+	  * 	-> check in the paper can only handle incorrect bounds for Basic Variables
+	  * 	-> This adds to check the feature to handle incorrect Bounds for NonBasic Variables
+	  */
+	 bool Tableau::checkAndUpdateNonBasic(){
+		 for(TVariable* x : columnVars){
+			 if(x->getValue() > x->getUpperBound().value){
+				 update(x, x->getUpperBound());
+			 }else if( x->getValue() < x->getLowerBound().value){
+				 update(x, x->getLowerBound());
+			 }
+		 }
+	 }
+	 
+	 
 	 bool Tableau::assertUpper(TVariable* x, Bound c){
 		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper Bound:" << c.value << " "  << x->getValue());
 				
@@ -364,9 +382,10 @@
 				
 			x->changeUpperBound(Bound(c.value, true));
 				
-			if(x->getIsBasic()==false && x->getValue() > c.value){
-				update(x, c);
-		}
+			//this is now done by checkAndUpdateNonBasic
+			//if(x->getIsBasic()==false && x->getValue() > c.value){
+			//	update(x, c);
+			//}
 		return true;
 	 }
 	 
@@ -377,10 +396,11 @@
 		if(c.value > x->getUpperBound().value){return false;}
 				
 		x->changeLowerBound(Bound(c.value, false));
-				
-		if(x->getIsBasic()==false && x->getValue() < c.value){
-			update(x, c);
-		}
+		
+		//this is now done by checkAndUpdateNonBasic
+		//if(x->getIsBasic()==false && x->getValue() < c.value){
+		//	update(x, c);
+		//}
 		return true;
 	 }
 	 
@@ -412,7 +432,9 @@
 		 int row = formulaToRow[formula];
 		 rowActive[row] = false;
 		 
-		 //rowVars[row]->resetBounds();
+		//Replaced the stack for bounds with an activate/deactivate feature
+		 formToVar[formula]->changeUpperBound(Bound(TRational(10000000), true));
+		 formToVar[formula]->changeLowerBound(Bound(TRational(-10000000), false));
 		 
 		 //Load the variable values of the last succesfull sat test (checkpoint)
 

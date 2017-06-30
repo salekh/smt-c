@@ -84,6 +84,8 @@ namespace smtrat
 					//Helper function that checks whether the tableau matrix is correct when using the values of the variables
 		void checkTest();
 		
+		bool checkAndUpdateNonBasic();
+		
 		
 					//used as helper function for checkCore, finds smallest Variable that fullfills the function f.
 					//isBasic: weather the function is called on all basic or all nonbasic variables.

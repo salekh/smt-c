@@ -28,9 +28,9 @@ namespace smtrat
 				
 				Bound lowerBound;
 				
-				std::stack<Bound> stackUpperBound;
+				//std::stack<Bound> stackUpperBound;
 			
-				std::stack<Bound> stackLowerBound;
+				//std::stack<Bound> stackLowerBound;
 				
 				bool isBasic;
 				
