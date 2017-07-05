@@ -120,12 +120,14 @@
 			
 			mModelComputed = true;
 			
-			stopModelRecursion=true;
-			if(checkModel() == 0){
-				SMTRAT_LOG_ERROR("smtrat.my","Model does not satisfy formulas!");
-				std::exit(12337);
-			}
-			stopModelRecursion=false;
+			#if defined DEVELOPPER
+				stopModelRecursion=true;
+				if(checkModel() == 0){
+					SMTRAT_LOG_ERROR("smtrat.my","Model does not satisfy formulas!");
+					std::exit(12337);
+				}
+				stopModelRecursion=false;
+			#endif
 		}
 	}
 	
@@ -158,6 +160,8 @@
 		//Is doing exactly what is described in the paper Check() method
 		while(true){
 			
+			
+			
 			#if defined LOGGING
 				tableau.print();
 			#endif
@@ -165,8 +169,11 @@
 			std::function<bool(TVariable*,TRational)> func = [](TVariable* v, TRational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
 			TVariable* x = tableau.findSmallestVariable(func, 0, true);
 			
+			
+			
 			if(x == nullptr){
 				SMTRAT_LOG_INFO("smtrat.my","No smallest variable found, create checkpoint and return SAT");
+				//cout << "No smallest variable found, create checkpoint and return SAT" << endl;
 				//Creates Checkpoint, needed for backtracking
 				tableau.createCheckpointValue();
 				
@@ -176,7 +183,7 @@
 				}
 				return Answer::SAT; // if there is no such xi then return satisfiable
 			}else{
-				
+				//cout << "Check Core While Loop " << x->getName() << endl;
 				
 				SMTRAT_LOG_INFO("smtrat.my","Smallest basic var (such that value < l_Bound or value > u_Bound) is " << x->getName() << " with id " << x->getId());
 				
