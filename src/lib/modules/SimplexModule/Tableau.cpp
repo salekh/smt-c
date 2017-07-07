@@ -363,7 +363,7 @@
 	  * 	-> check in the paper can only handle incorrect bounds for Basic Variables
 	  * 	-> This adds to check the feature to handle incorrect Bounds for NonBasic Variables
 	  */
-	 bool Tableau::checkAndUpdateNonBasic(){
+	 void Tableau::checkAndUpdateNonBasic(){
 		 for(TVariable* x : columnVars){
 			 if(x->getValue() > x->getUpperBound().value){
 				 update(x, x->getUpperBound());

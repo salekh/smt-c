@@ -161,7 +161,6 @@
 		while(true){
 			
 			
-			
 			#if defined LOGGING
 				tableau.print();
 			#endif
