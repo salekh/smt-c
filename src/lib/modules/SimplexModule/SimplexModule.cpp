@@ -164,10 +164,7 @@
 				tableau.print();
 			#endif
 			
-			std::function<bool(TVariable*,TRational)> func = [](TVariable* v, TRational a)-> bool { return (v->getValue()<v->getLowerBound().value || v->getValue()>v->getUpperBound().value);  };
-			TVariable* x = tableau.findSmallestVariable(func, 0, true);
-			
-			
+			TVariable* x = tableau.findSmallestBasicVariable();
 			
 			if(x == nullptr){
 				SMTRAT_LOG_INFO("smtrat.my","No smallest variable found, create checkpoint and return SAT");
@@ -189,9 +186,9 @@
 					
 					SMTRAT_LOG_INFO("smtrat.my","Condition 1 (value < lowerBound)");
 					
-					func = [](TVariable* v, TRational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
-						|| (a<0 && v->getValue()>v->getLowerBound().value);  };
-						TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
+					//func = [](TVariable* v, TRational a)-> bool { return (a>0 && v->getValue()<v->getUpperBound().value) 
+					//	|| (a<0 && v->getValue()>v->getLowerBound().value);  };
+						TVariable* b = tableau.findSmallestNonBasicVariable(x->getPositionMatrixY(), false);
 
 						if(b == nullptr){
 							//generateTrivialInfeasibleSubset();
@@ -207,9 +204,9 @@
 					if(x->getValue() > x->getUpperBound().value){
 						SMTRAT_LOG_INFO("smtrat.my","Condition 2 (value > upperBound)");
 
-						func = [](TVariable* v, TRational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
-							|| (a>0 && v->getValue()>v->getLowerBound().value);  };
-							TVariable* b = tableau.findSmallestVariable(func, x->getPositionMatrixY(), false);
+						//func = [](TVariable* v, TRational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
+						//	|| (a>0 && v->getValue()>v->getLowerBound().value);  };
+							TVariable* b = tableau.findSmallestNonBasicVariable( x->getPositionMatrixY(), true);
 
 							if(b == nullptr){
 								//generateTrivialInfeasibleSubset();

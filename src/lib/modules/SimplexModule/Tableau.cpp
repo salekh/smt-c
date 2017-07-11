@@ -224,14 +224,16 @@
  				
  				Rational factorRow = matrix(y,columnPos);
  				
- 				for(int x=0;x<matrix.cols();x++){
- 					
- 					if(columnPos == x){
- 						matrix(y,x) = (1/factor)*factorRow;
- 					}else{
- 						matrix(y,x) -= (matrix(rowPos,x)/factor)*factorRow;
- 					}
- 				}
+				if(factorRow != 0){
+					for(int x=0;x<matrix.cols();x++){
+						
+						if(columnPos == x){
+							matrix(y,x) = (1/factor)*factorRow;
+						}else{
+							matrix(y,x) -= (matrix(rowPos,x)/factor)*factorRow;
+						}
+					}
+				}
  			}
  		}
 		
@@ -271,8 +273,8 @@
 	 	int i = xi->getPositionMatrixY();
 	 	int j = xj->getPositionMatrixX();
 	 	
-		TRational theta = (TRational(v)-xi->getValue())/matrix(i, j); 
-		xi->setValue(TRational(v));
+		TRational theta = (v-xi->getValue())/matrix(i, j); 
+		xi->setValue(v);
 		xj->setValue(xj->getValue()+theta);
 		
 		SMTRAT_LOG_INFO( "smtrat.my","theta " << theta );
@@ -437,35 +439,62 @@
 	 
 	 
 	 
-	 TVariable* Tableau::findSmallestVariable(std::function<bool(TVariable*, TRational)> func, int pos, bool isBasic)
+	 TVariable* Tableau::findSmallestBasicVariable()
 	 {
 	 	int smallestId = INT_MAX;
 	 	TVariable* t = nullptr;
 	 	
-	 	if(isBasic){
 	 		
 			for(int i=0;i<rowVars.size();i++){
 				//if(rowActive[i]){
 					TVariable* r = rowVars[i];
 					
 						//SMTRAT_LOG_INFO("smtrat.my","Check Variable succ " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value);
-					if( func(r, matrix(i, pos))){
+					if(r->getId() < smallestId){
 					
-						if(r->getId() < smallestId){
+						if((r->getValue()<r->getLowerBound().value || r->getValue()>r->getUpperBound().value)){
+						
 							smallestId = r->getId();
 							t = r;
 						}
 	 				
 					}
-				//}
-	 		}
+			}
+			
+			return t;
+	 }
 	 		
+			
+	TVariable* Tableau::findSmallestNonBasicVariable(int pos, bool upperBound)
+	{
+		int smallestId = INT_MAX;
+	 	TVariable* t = nullptr;
+		
+		if(upperBound==false){
+	
+			for(int i=0;i<columnVars.size();i++){
+				TVariable* c = columnVars[i];
+				if(c->getId() < smallestId){
+					
+					
+					if((matrix(pos, i)>0 && c->getValue()<c->getUpperBound().value) 
+						|| (matrix(pos, i)<0 && c->getValue()>c->getLowerBound().value))
+					{
+	 					smallestId = c->getId();
+	 					t = c;
+	 				}
+	 				
+	 			}
+	 		}
+			
 	 	}else{
 	 		
 			for(int i=0;i<columnVars.size();i++){
 				TVariable* c = columnVars[i];
-	 			if(func(c, matrix(pos, i))){
-	 				if(c->getId() < smallestId){
+				if(c->getId() < smallestId){
+					if((matrix(pos, i)<0 && c->getValue()<c->getUpperBound().value) 
+							|| (matrix(pos, i)>0 && c->getValue()>c->getLowerBound().value))
+					{
 	 					smallestId = c->getId();
 	 					t = c;
 	 				}
@@ -478,6 +507,7 @@
 	 	
 	 	return t;
 	 }
+	 
 	 
 	 //Returns a set of conflict variables for a given Nonbasic Var
 	 //conflict means that the in the matrix a(x,i) != 0

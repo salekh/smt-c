@@ -94,7 +94,9 @@ namespace smtrat
 					//isBasic: weather the function is called on all basic or all nonbasic variables.
 					// function f takes a TVariable, a matrix value and returns a bool
 					// returns a TVariable if found, otherwise a nullpointer
-		TVariable* findSmallestVariable(std::function<bool(TVariable*,TRational)> func, int helper, bool isBasic);
+		TVariable* findSmallestBasicVariable();
+		
+		TVariable* findSmallestNonBasicVariable(int posBasic, bool upperBound);
 		
 		
 		std::set<TVariable*> findConflictVariables(TVariable* v);
