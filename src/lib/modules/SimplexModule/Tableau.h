@@ -25,7 +25,7 @@ namespace smtrat
 				// (Basic aka rows, NonBasic aka columns)
 		Eigen::Matrix<Rational, Eigen::Dynamic, Eigen::Dynamic> matrix;
 		
-				//which rows were actiavted by adding/removing formulas
+				//which rows were actiavted by adding/removing formulas, only for printing matrix
 		std::vector<bool> rowActive;
 		
 				//Position vector of the nonbasic variables
@@ -49,6 +49,12 @@ namespace smtrat
 		carl::FastMap<carl::Variable,TVariable*> varToTVar;
 		
 		
+		
+	private:
+				//Helper function that checks whether the tableau matrix is correct when using the values of the variables
+		void checkTest();
+		
+			//Methods as described in the paper
 		bool assertUpper(TVariable* x, Bound c);
 		
 		bool assertLower(TVariable* x, Bound c);
@@ -66,7 +72,6 @@ namespace smtrat
 		
 		void update(TVariable* v, Bound b);
 		
-		
 					//used by insertCore
 		bool activateRow(FormulaT formula);
 		
@@ -81,8 +86,6 @@ namespace smtrat
 		
 		void loadCheckpoint();
 		
-					//Helper function that checks whether the tableau matrix is correct when using the values of the variables
-		void checkTest();
 		
 		void checkAndUpdateNonBasic();
 		

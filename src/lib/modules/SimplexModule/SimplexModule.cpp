@@ -69,7 +69,6 @@
 			tableauInitialized = true;
 			tableau = Tableau(listFormulas);
 		}
-		tableau.createCheckpointBounds();
 		
 		
 		//Ignore formulas that contain not equals and return true

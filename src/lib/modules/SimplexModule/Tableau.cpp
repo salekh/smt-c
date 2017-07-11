@@ -51,14 +51,16 @@
 			//Assure we have a linear formula
 			assert(constraint.lhs().isLinear());
  			
-			//Check the constraint whether it is >= (lower bound) or <= (upper bound) 
-			
+			//Create Bound as the negative constant part of the formula.
+ 			//E.g x + y -5 <= 0
+ 			//Bound is +5
 			std::vector<Bound> boundSet;
  			
  			switch( constraint.relation() )
  			{
 				case carl::Relation::EQ:
 				{
+					//Eq is handled as both >= and <=
 					Bound bound1(TRational(-constraint.constantPart()),false);
 					Bound bound2(TRational(-constraint.constantPart()),true);
 					boundSet = {bound1, bound2};
@@ -81,33 +83,25 @@
  				}
  				case carl::Relation::GREATER:
  				{
+					//Greater uses the delta part of the TRational
  					Bound bound(TRational(-constraint.constantPart(),1),false);
 					boundSet = {bound};
  					break;
  				}
  				case carl::Relation::LESS:
  				{
+					//Less uses the delta part of the TRational
  					Bound bound(TRational(-constraint.constantPart(),-1),true);
 					boundSet = {bound};
  					break;
  				}
-				default:
-				{
-					//assert(false);
-					//break;
-				}
-             
-
-				
  			}
 
- 			//Create Bound as the negative constant part of the formula.
- 			//E.g x + y -5 <= 0
- 			//Bound is +5
+
  			 for(Bound b : boundSet){
 				 SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << b.value << " isUpperBound: " << b.upperBound);
 			 }
- 			//cout << "Created Bound " << -constraint.constantPart() << " isUpperBound: " << isUpperBound << endl; 
+
  			
  			formulaToBound[formula] = boundSet;
  			formToVar[formula] = tVar;
@@ -121,52 +115,52 @@
  		}
  		
  		unsigned long number_of_variables = variablesInFormula.size();
- 		matrix.setConstant(number_of_formulas,number_of_variables,Rational(0));
  		
-		//Set correct size of vectors
- 		rowVars.resize(number_of_formulas);
- 		rowActive.resize(number_of_formulas);
- 		columnVars.resize(number_of_variables);
  		
-		//make sure the row is active at init
+		//make sure no row is active
+		rowActive.resize(number_of_formulas);
  		std::fill(rowActive.begin(), rowActive.end(), false);
 
-		//get the coefficients of each variable in each formula
- 		int x=0;int y=0;
 
- 		//Create Tableau
- 		//For each formula add the coefficient of each variable 
- 		
- 		for(auto formula : formulaList){
- 			x=0;
+		//Create Tableau columnVars vector
+		columnVars.resize(number_of_variables);
+		
+ 		int x=0;
+		for(auto var : variablesInFormula){
+			columnVars[x] = varToTVar[var];
+			columnVars[x]->setPositionMatrixX(x);
+			x++;
+		}
+		
+		
+		//Create Tableau rowVars vector
+		rowVars.resize(number_of_formulas);
+		
+		int y=0;
+		for(auto formula : formulaList){
  			rowVars[y] = formToVar[formula];
  			rowVars[y]->setPositionMatrixY(y);
 			formulaToRow[formula] = y;
+			y++;
+		}
+		
+ 		//Create Tableau matrix
+		y=0;
+		matrix.setConstant(number_of_formulas,number_of_variables,Rational(0));
+		
+ 		for(auto formula : formulaList){
  			
- 			for(auto var : variablesInFormula){
- 				
- 				columnVars[x] = varToTVar[var];
- 				columnVars[x]->setPositionMatrixX(x);
- 				
- 				//If the formula contains the variable, set the Tableau entry to the coefficient
- 				//If not, set entry to 0
- 				if(formula.constraint().hasVariable(var)){
- 					carl::MultivariatePolynomial<smtrat::Rational> coeff = formula.constraint().coefficient(var,1);
- 					Rational _coeffValue = coeff.lcoeff();
- 					
- 					//cout << coeff << "\t"; 
- 					//SMTRAT_LOG_INFO("smtrat.my",coeff << "\t");
- 					matrix(y,x) = _coeffValue;
- 				} else {
- 					//cout << "0" <<  "\t";
- 					//SMTRAT_LOG_INFO("smtrat.my", "0" <<  "\t");
- 				}
- 				
- 				x++;
- 			}
+			for(const auto& t: formula.constraint().lhs()){
+				if(t.isSingleVariable()){
+					carl::Variable var = t.getSingleVariable();
+					Rational coeff = t.coeff();
+					int x = varToTVar[var]->getPositionMatrixX();
+					
+					matrix(y,x) = coeff;
+				}
+			}
  			
  			y++;
-			//cout << endl;
  		}	
  		
 		SMTRAT_LOG_INFO("smtrat.my", "Print Matrix");
@@ -416,15 +410,6 @@
 	 }
 	 
 	 
-	 void Tableau::createCheckpointBounds(){
-		 for(auto r : rowVars){
-			 r->saveBounds();
-		 }
-		 
-		 for(auto c : columnVars){
-			 c->saveBounds();
-		 }
-	 }
 	 
 	 
 	 void Tableau::deactivateRow(FormulaT formula)

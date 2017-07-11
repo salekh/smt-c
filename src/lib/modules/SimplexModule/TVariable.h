@@ -28,9 +28,6 @@ namespace smtrat
 				
 				Bound lowerBound;
 				
-				//std::stack<Bound> stackUpperBound;
-			
-				//std::stack<Bound> stackLowerBound;
 				
 				bool isBasic;
 				
@@ -64,7 +61,6 @@ namespace smtrat
 				
 				//Stores and load value/bounds
 				void saveValue();
-				void saveBounds();
 				void load();
 				
 				void setPositionMatrixX(int positionMatrixX) {this->positionMatrixX = positionMatrixX;}

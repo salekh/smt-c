@@ -32,26 +32,9 @@ namespace smtrat
 		lastValue = value;
 	}
 	
-	void TVariable::saveBounds(){ 
-		//This function is no longer needed without a stack
-		
-		//stackUpperBound.push(upperBound);
-		//stackLowerBound.push(lowerBound);
-	}
 		
 	void TVariable::load(){ 
 		value = lastValue; 
-		
-		//if(stackUpperBound.empty() || stackLowerBound.empty() ){
-		//	SMTRAT_LOG_ERROR("smtrat.my","TVariable, cant pop empty stack!");
-		//}
-			
-		//upperBound = stackUpperBound.top();
-		//stackUpperBound.pop();
-		
-		//lowerBound = stackLowerBound.top();
-		//stackLowerBound.pop();
-					
 	}
 	
 	void TVariable::changeUpperBound(Bound b){
