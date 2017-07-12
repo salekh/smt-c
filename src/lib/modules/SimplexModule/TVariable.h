@@ -56,7 +56,7 @@ namespace smtrat
 				bool getIsBasic(){return isBasic; };
 				void setIsBasic(bool basic){this->isBasic = basic;}
 				
-				TRational getValue() { return value; };
+				TRational& getValue() { return value; };
 				void setValue(TRational r) { value = r; };
 				
 				//Stores and load value/bounds

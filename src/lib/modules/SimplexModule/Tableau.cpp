@@ -284,7 +284,10 @@
 		for(int k=0;k<matrix.rows();k++){
 			if(k != i){
 				SMTRAT_LOG_INFO("smtrat.my", rowVars[k]->getName() << " = " << rowVars[k]->getValue() << "+" << theta << "*" <<  matrix(k,j) << "=" << (rowVars[k]->getValue()+theta*matrix(k,j)));
-				rowVars[k]->setValue(rowVars[k]->getValue()+theta*matrix(k,j));
+				//rowVars[k]->setValue(rowVars[k]->getValue()+theta*matrix(k,j));
+				TRational t = TRational(theta);
+				t *= matrix(k,j);
+				rowVars[k]->getValue() += t;
 			}
 		}
 		
@@ -311,7 +314,11 @@
 	 	int column = x->getPositionMatrixX();
 	 	for(auto basic : rowVars){
 	 		int row = basic->getPositionMatrixY(); 
-	 		basic->setValue(basic->getValue() + (b.value-x->getValue())*matrix(row,column));
+			TRational t = TRational(b.value);
+			t-=x->getValue();
+			t*=matrix(row,column);
+			basic->getValue() += t;
+	 		//basic->setValue(basic->getValue() + (b.value-x->getValue())*matrix(row,column));
 	 	}
 	 	
 	 	x->setValue(b.value);

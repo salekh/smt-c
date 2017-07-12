@@ -37,6 +37,10 @@
 		/*
 		*
 		*/
+		
+		//TRational(TRational&&) = default;
+		
+		
 		TRational(const Rational& rational);
 		
 		/*
