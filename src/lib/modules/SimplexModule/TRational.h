@@ -5,18 +5,18 @@
  * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
  *
  */
- 
+
  #pragma once
 
 #include "../../Common.h"
 #include <sstream>
 
- namespace smtrat{
+namespace smtrat{
 
- 	class TRational
- 	{
+	class TRational
+	{
 
- 	private:
+	private:
 		/**
 		* Rational Part (for weak inequalities)
 		*/
@@ -84,142 +84,142 @@
 	     * @param _rational
 	     * @return
 	     */
-	     TRational& operator=(const TRational& _rational);
+		TRational& operator=(const TRational& _rational);
 
 		/**
 	     * 
 	     * @param _rational
 	     * @return
 	     */
-	     TRational operator +( const TRational& _rational) const;
+		TRational operator +( const TRational& _rational) const;
 
 		/**
 	     * 
 	     * @param _rational
 	     */
-	     void operator +=( const TRational& _rational );
+		void operator +=( const TRational& _rational );
 
 
 		/**
 	     * @param _rational
 	     * @return
 	     */
-	     TRational operator -( const TRational& _rational ) const;
+		TRational operator -( const TRational& _rational ) const;
 
 		/**
 	     * 
 	     * @param _rational
 	     */
-	     void operator -=( const TRational& _rational );
+		void operator -=( const TRational& _rational );
 
 		/**
 	     * 
 	     * @param _a
 	     * @return
 	     */
-	     TRational operator *( const Rational& _a ) const;
+		TRational operator *( const Rational& _a ) const;
 
 		/**
 	     * 
 	     * @param _rational
 	     */
-	     void operator *=( const TRational& _rational );
+		void operator *=( const TRational& _rational );
 
 	    /**
 	     * 
 	     * @param _a
 	     */
-	     void operator *=( const Rational& _a );
+		void operator *=( const Rational& _a );
 
 	    /**
 	     * 
 	     * @param _a
 	     * @return 
 	     */
-	     TRational operator /( const Rational& _a ) const;
+		TRational operator /( const Rational& _a ) const;
 
 	    /**
 	     * 
 	     * @param _a
 	     */
-	     void operator /=( const Rational& _a );
+		void operator /=( const Rational& _a );
 
 	    /**
 	     * 
 	     * @param _rational
 	     * @return 
 	     */
-	     bool operator <( const TRational& _rational ) const;
-	     bool operator >( const TRational& _rational ) const
-	     {
-	     	return _rational < *this;
-	     }
+		bool operator <( const TRational& _rational ) const;
+		bool operator >( const TRational& _rational ) const
+		{
+			return _rational < *this;
+		}
 
 	    /**
 	     * 
 	     * @param _rational
 	     * @return 
 	     */
-	     bool operator <=( const TRational& _rational ) const;
-	     bool operator >=( const TRational& _rational ) const
-	     {
-	     	return _rational <= *this;
-	     }
+		bool operator <=( const TRational& _rational ) const;
+		bool operator >=( const TRational& _rational ) const
+		{
+			return _rational <= *this;
+		}
 
 	    /**
 	     * 
 	     * @param _rational
 	     * @return 
 	     */
-	     bool operator ==( const TRational& _rational ) const;
-	     bool operator !=( const TRational& _rational ) const
-	     {
-	     	return !(*this == _rational);
-	     }
+		bool operator ==( const TRational& _rational ) const;
+		bool operator !=( const TRational& _rational ) const
+		{
+			return !(*this == _rational);
+		}
 
 	    /**
 	     * 
 	     * @param _a
 	     * @return 
 	     */
-	     bool operator ==( const Rational& _a ) const;
-	     bool operator !=( const Rational& _a ) const
-	     {
-	     	return !(*this == _a);
-	     }
+		bool operator ==( const Rational& _a ) const;
+		bool operator !=( const Rational& _a ) const
+		{
+			return !(*this == _a);
+		}
 
 	    /**
 	     * 
 	     * @param _a
 	     * @return 
 	     */
-	     bool operator <( const Rational& _a ) const;
+		bool operator <( const Rational& _a ) const;
 
 	    /**
 	     * 
 	     * @param _a
 	     * @return 
 	     */
-	     bool operator >( const Rational& _a ) const;
+		bool operator >( const Rational& _a ) const;
 
 	    /**
 	     * 
 	     * @param _a
 	     * @return 
 	     */
-	     bool operator <=( const Rational& _a ) const;
+		bool operator <=( const Rational& _a ) const;
 
 	    /**
 	     * 
 	     * @param _a
 	     * @return 
 	     */
-	     bool operator >=( const Rational& _a ) const;
-		 
-		
-			friend std::ostream& operator<<( std::ostream& stream, const TRational& t );
-		};
+		bool operator >=( const Rational& _a ) const;
 		
 		
+		friend std::ostream& operator<<( std::ostream& stream, const TRational& t );
+	};
+	
+	
 
 }
