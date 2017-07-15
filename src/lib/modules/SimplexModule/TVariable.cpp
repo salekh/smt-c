@@ -32,7 +32,7 @@ namespace smtrat
 		lastValue = value;
 	}
 	
-		
+	//used for checkpointing
 	void TVariable::load(){ 
 		value = lastValue; 
 	}

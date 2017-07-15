@@ -38,8 +38,6 @@ namespace smtrat{
 		*
 		*/
 		
-		//TRational(TRational&&) = default;
-		
 		
 		TRational(const Rational& rational);
 		
@@ -215,11 +213,11 @@ namespace smtrat{
 	     * @return 
 	     */
 		bool operator >=( const Rational& _a ) const;
-		
+
 		
 		friend std::ostream& operator<<( std::ostream& stream, const TRational& t );
 	};
-	
-	
+
+
 
 }

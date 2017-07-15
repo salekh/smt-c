@@ -5,7 +5,7 @@
  * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
  *
  */
- #pragma once
+#pragma once
 
 #include "TRational.h"
 

@@ -407,7 +407,7 @@
 		return true;
 	 }
 	 
-	 
+	 //stores value inside saveValue of vars to create a checkpoint value
 	 void Tableau::createCheckpointValue(){
 		 for(auto r : rowVars){
 			 r->saveValue();
@@ -434,6 +434,8 @@
 
 	 }
 	 
+	 
+	 //Loads the values stored in the checkpoint
 	 void Tableau::loadCheckpoint(){
 		 for(auto r : rowVars){
 			 r->load();
@@ -451,24 +453,21 @@
 	 	int smallestId = INT_MAX;
 	 	TVariable* t = nullptr;
 	 	
-	 		
-			for(int i=0;i<rowVars.size();i++){
+		for(int i=0;i<rowVars.size();i++){
 				//if(rowActive[i]){
-					TVariable* r = rowVars[i];
-					
-						//SMTRAT_LOG_INFO("smtrat.my","Check Variable succ " << r->getName() << " v:" << r->getValue() << " l:" << r->getLowerBound().value << " u:" << r->getUpperBound().value);
-					if(r->getId() < smallestId){
-					
-						if((r->getValue()<r->getLowerBound().value || r->getValue()>r->getUpperBound().value)){
-						
-							smallestId = r->getId();
-							t = r;
-						}
-	 				
-					}
-			}
-			
-			return t;
+	 		TVariable* r = rowVars[i];
+	 		if(r->getId() < smallestId){
+
+	 			if((r->getValue()<r->getLowerBound().value || r->getValue()>r->getUpperBound().value)){
+
+	 				smallestId = r->getId();
+	 				t = r;
+	 			}
+
+	 		}
+	 	}
+
+	 	return t;
 	 }
 	 		
 			
@@ -563,6 +562,8 @@
 	 }
 	 
 	 
+	 //prints the tableau, i.e. all variables (basic + non-basic) with value and bounds
+
 	 void Tableau::print(){
 	 	
 		 //Create Vector for formulas
