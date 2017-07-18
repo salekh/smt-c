@@ -54,29 +54,31 @@
 			//Create Bound as the negative constant part of the formula.
  			//E.g x + y -5 <= 0
  			//Bound is +5
-			std::vector<Bound> boundSet;
+			std::vector<TRational> boundSet;
+			//TODO use infSet?!
+			//std::vector<TRational> infSet;
  			
  			switch( constraint.relation() )
  			{
 				case carl::Relation::EQ:
 				{
 					//Eq is handled as both >= and <=
-					Bound bound1(TRational(-constraint.constantPart()),false);
-					Bound bound2(TRational(-constraint.constantPart()),true);
+					TRational bound1 = -constraint.constantPart();
+					TRational bound2 = -constraint.constantPart();
 					boundSet = {bound1, bound2};
 					break;
 				}
 				
  				case carl::Relation::GEQ:
  				{
-					Bound bound(TRational(-constraint.constantPart()),false);
+					TRational bound = -constraint.constantPart();
 					boundSet = {bound};
 					break;
 					
  				}
  				case carl::Relation::LEQ:
  				{
-					Bound bound(TRational(-constraint.constantPart()),true);
+					bound = -constraint.constantPart();
 					boundSet = {bound};
 					break;
  					
@@ -84,7 +86,7 @@
  				case carl::Relation::GREATER:
  				{
 					//Greater uses the delta part of the TRational
- 					Bound bound(TRational(-constraint.constantPart(),1),false);
+ 					bound Bound bound(TRational(-constraint.constantPart(),1),false);
 					boundSet = {bound};
  					break;
  				}
@@ -307,7 +309,7 @@
 	 * Bruno Duterte and Leonardo de Moura
 	 */
 	 
-	 void Tableau::update(TVariable* x, Bound b)
+	 void Tableau::update(TVariable* x, TRational b)
 	 {
 	 	SMTRAT_LOG_INFO("smtrat.my", "Update");
 	 	
@@ -330,7 +332,7 @@
 	 
 	 bool Tableau::activateRow(FormulaT formula)
 	 {
-	 	std::vector<Bound> boundSet = formulaToBound[formula];
+	 	std::vector<TRational> boundSet = formulaToBound[formula];
 	 	TVariable* x = formToVar[formula];
 	 	int row = formulaToRow[formula];
 	 	
@@ -338,7 +340,7 @@
 	 	bool result = true;
 		SMTRAT_LOG_INFO("smtrat.my","Activate Row with basic = " << x->getIsBasic() );
 		
-		for(auto c: boundSet){
+		for(auto c: TRational){
 			
 			if(c.upperBound){
 				//AssertUpper (for upper bounds)
@@ -362,7 +364,7 @@
 	 /**
 	  * Idea: When two formulas are added in a row and after that check is executed
 	  * During check there is a pivot (makes slack variable Nonbasic) for the first formula, but the check fails because of the second formula and now the second formula is replaced
-	  * 	->  because of remove the variable bounds are reset. This means the slack variable of the first formula is no longer in its bounds
+	  * 	-> because of remove the variable bounds are reset. This means the slack variable of the first formula is no longer in its bounds
 	  * 	-> check in the paper can only handle incorrect bounds for Basic Variables
 	  * 	-> This adds to check the feature to handle incorrect Bounds for NonBasic Variables
 	  */

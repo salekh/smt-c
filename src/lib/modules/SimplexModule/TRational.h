@@ -27,6 +27,12 @@ namespace smtrat{
 		*/	
 		Rational deltaPart=0;
 
+		/*
+		* Infinity part (1 = +inf, -1 = -inf, 0 != -/+ inf)
+		*/
+
+		Rational infPart = 0;
+
 	public:
 		
 		/*
@@ -72,10 +78,26 @@ namespace smtrat{
 			return deltaPart;
 		}
 
+		/*
+		* getter for Inf value
+		*/
+
+		const Rational& getInfPart() const{
+			return infPart;
+		}
+
 
 		/****************************************
 				OVERLOADING THE OPERATORS 
 		******************************************/
+
+		/**
+		* 
+		* Method for checking Inf
+		* 
+		*/
+
+		Rational checkInf(const TRational& _a, const TRational& _b);
 
 		/**
 	     * 

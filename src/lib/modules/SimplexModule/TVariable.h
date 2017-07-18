@@ -24,9 +24,9 @@ namespace smtrat
 		TRational lastValue;
 
 
-		Bound upperBound;
+		TRational upperBound;
 
-		Bound lowerBound;
+		TRational lowerBound;
 
 
 		bool isBasic;
@@ -47,9 +47,9 @@ namespace smtrat
 
 		TVariable(carl::Variable pOriginal, int pId, bool pIsBasic);
 
-		void changeUpperBound(Bound b);
+		void changeUpperBound(TRational b);
 
-		void changeLowerBound(Bound b);
+		void changeLowerBound(TRational b);
 
 		int getId() { return id; };
 
@@ -68,13 +68,13 @@ namespace smtrat
 		int getPositionMatrixX() {return positionMatrixX;}
 		int getPositionMatrixY() {return positionMatrixY;}
 
-		Bound& getUpperBound() { return upperBound; };
-		Bound& getLowerBound() { return lowerBound; };
+		TRational& getUpperBound() { return upperBound; };
+		TRational& getLowerBound() { return lowerBound; };
 
 		FormulaT& getFormula() { return formula; };
 
 		std::string getName();
 
-		Rational calculateDelta(Bound b);
+		Rational calculateDelta(TRational b);
 	};
 }

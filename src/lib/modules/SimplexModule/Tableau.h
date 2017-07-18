@@ -55,9 +55,9 @@ namespace smtrat
 		void checkTest();
 		
 			//Methods as described in the paper
-		bool assertUpper(TVariable* x, Bound c);
+		bool assertUpper(TVariable* x, TRational c);
 		
-		bool assertLower(TVariable* x, Bound c);
+		bool assertLower(TVariable* x, TRational c);
 		
 	public:
 		
@@ -70,7 +70,7 @@ namespace smtrat
 		
 		void pivot(int rowPos, int columnPos);
 		
-		void update(TVariable* v, Bound b);
+		void update(TVariable* v, TRational b);
 		
 					//used by insertCore
 		bool activateRow(FormulaT formula);
