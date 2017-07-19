@@ -33,18 +33,26 @@ namespace smtrat{
 
 		Rational infPart = 0;
 
+		/*
+		* Boolean Value if Upper or Lower Bound
+		*/
+
+		bool upperBound;
+
 	public:
 		
 		/*
 		*
 		*/
-		TRational(const Rational& rational, const Rational& delta);
+		TRational(const Rational& rational, const Rational& delta, const Rational& inf, bool bound);
 		
 		/*
 		*
 		*/
 		
 		
+		TRational(const Rational& rational, const Rational& inf, bool bound);
+
 		TRational(const Rational& rational);
 		
 		/*
@@ -84,6 +92,10 @@ namespace smtrat{
 
 		const Rational& getInfPart() const{
 			return infPart;
+		}
+
+		bool isUpperBound() const {
+			return upperBound;
 		}
 
 

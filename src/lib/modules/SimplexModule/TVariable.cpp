@@ -10,8 +10,8 @@ namespace smtrat
 		isBasic = pIsBasic;
 		formula = form;
 		
-		upperBound = TRational(0,1);   
-		lowerBound = TRational(0,-1);
+		upperBound = TRational(0,1,true);   
+		lowerBound = TRational(0,-1,false);
 		
 		isSlack = true;
 	}
@@ -22,8 +22,8 @@ namespace smtrat
 		id = pId;
 		isBasic = pIsBasic;
 		
-		upperBound = TRational(0,1); 
-		lowerBound = TRational(0,-1);
+		upperBound = TRational(0,1,true); 
+		lowerBound = TRational(0,-1,false);
 		
 		isSlack=false;
 	}
@@ -38,11 +38,23 @@ namespace smtrat
 	}
 	
 	void TVariable::changeUpperBound(TRational b){
-		upperBound = b;
+		Rational rat = getRationalPart(b);
+		Rational del = getDeltaPart(b);
+		Rational inf = getInfPart(b);
+
+		TRational newUpper = TRational(rat,del,inf,true);
+
+		upperBound = newUpper;
 	}
 	
 	void TVariable::changeLowerBound(TRational b){
-		lowerBound = b;
+		Rational rat = getRationalPart(b);
+		Rational del = getDeltaPart(b);
+		Rational inf = getInfPart(b);
+
+		TRational newLower = TRational(rat,del,inf,false);
+
+		lowerBound = newLower;
 	}
 	
 	Rational TVariable::calculateDelta(TRational b){

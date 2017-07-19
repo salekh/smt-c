@@ -182,7 +182,7 @@
 				
 				SMTRAT_LOG_INFO("smtrat.my","Smallest basic var (such that value < l_Bound or value > u_Bound) is " << x->getName() << " with id " << x->getId());
 				
-				if(x->getValue() < x->getLowerBound().value){
+				if(x->getValue() < x->getLowerBound()){
 					
 					SMTRAT_LOG_INFO("smtrat.my","Condition 1 (value < lowerBound)");
 					
@@ -198,10 +198,10 @@
 						
 						SMTRAT_LOG_INFO("smtrat.my","Smallest nonbasic var (such that (aij > 0 and value < u_Bound) or (aij < 0 and value > l_Bound )) is " << b->getName() << " with id " << b->getId());
 
-						tableau.pivotAndUpdate(x, b, TRational(x->getLowerBound().value));
+						tableau.pivotAndUpdate(x, b, TRational(x->getLowerBound()));
 					}
 
-					if(x->getValue() > x->getUpperBound().value){
+					if(x->getValue() > x->getUpperBound()){
 						SMTRAT_LOG_INFO("smtrat.my","Condition 2 (value > upperBound)");
 
 						//func = [](TVariable* v, TRational a)-> bool { return (a<0 && v->getValue()<v->getUpperBound().value) 
@@ -216,7 +216,7 @@
 							
 							SMTRAT_LOG_INFO("smtrat.my","Smallest nonbasic var (such that (aij < 0 and value < u_Bound) or (aij > 0 and value > l_Bound )) is " << b->getName() << " with id " << b->getId());
 
-							tableau.pivotAndUpdate(x, b, TRational(x->getUpperBound().value));
+							tableau.pivotAndUpdate(x, b, TRational(x->getUpperBound()));
 						}
 
 						//return Answer::UNKNOWN;

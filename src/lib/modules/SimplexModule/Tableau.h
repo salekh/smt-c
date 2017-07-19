@@ -37,7 +37,7 @@ namespace smtrat
 		
 		
 				//Stores the bound for the "s" variable of the formula (vector, because "=" needs uper and lower bound)
-		carl::FastMap<FormulaT,std::vector<Bound>> formulaToBound;
+		carl::FastMap<FormulaT,std::vector<TRational>> formulaToBound;
 		
 				//Which formula is assigned to which matrix row
 		carl::FastMap<FormulaT,int> formulaToRow;

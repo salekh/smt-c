@@ -78,7 +78,7 @@
  				}
  				case carl::Relation::LEQ:
  				{
-					bound = -constraint.constantPart();
+					TRational bound = -constraint.constantPart();
 					boundSet = {bound};
 					break;
  					
@@ -86,22 +86,22 @@
  				case carl::Relation::GREATER:
  				{
 					//Greater uses the delta part of the TRational
- 					bound Bound bound(TRational(-constraint.constantPart(),1),false);
+ 					TRational bound = -constraint.constantPart();
 					boundSet = {bound};
  					break;
  				}
  				case carl::Relation::LESS:
  				{
 					//Less uses the delta part of the TRational
- 					Bound bound(TRational(-constraint.constantPart(),-1),true);
+ 					TRational bound = -constraint.constantPart();
 					boundSet = {bound};
  					break;
  				}
  			}
 
 
- 			 for(Bound b : boundSet){
-				 SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << b.value << " isUpperBound: " << b.upperBound);
+ 			 for(TRational b : boundSet){
+				 SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << b << " isUpperBound: " << b.isUpperBound());
 			 }
 
  			
@@ -316,14 +316,13 @@
 	 	int column = x->getPositionMatrixX();
 	 	for(auto basic : rowVars){
 	 		int row = basic->getPositionMatrixY(); 
-			TRational t = TRational(b.value);
-			t-=x->getValue();
-			t*=matrix(row,column);
-			basic->getValue() += t;
+			b-=x->getValue();
+			b*=matrix(row,column);
+			basic->getValue() += b;
 	 		//basic->setValue(basic->getValue() + (b.value-x->getValue())*matrix(row,column));
 	 	}
 	 	
-	 	x->setValue(b.value);
+	 	x->setValue(b);
 		
 		#if defined DEVELOPPER
 			checkTest();
@@ -370,23 +369,24 @@
 	  */
 	 void Tableau::checkAndUpdateNonBasic(){
 		 for(TVariable* x : columnVars){
-			 if(x->getValue() > x->getUpperBound().value){
+			 if(x->getValue() > x->getUpperBound()){
 				 update(x, x->getUpperBound());
-			 }else if( x->getValue() < x->getLowerBound().value){
+			 }else if( x->getValue() < x->getLowerBound()){
 				 update(x, x->getLowerBound());
 			 }
 		 }
 	 }
 	 
 	 
-	 bool Tableau::assertUpper(TVariable* x, Bound c){
-		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper Bound:" << c.value << " "  << x->getValue());
+	 bool Tableau::assertUpper(TVariable* x, TRational c){
+		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper Bound:" << c << " "  << x->getValue());
 				
-		if(c.value >= x->getUpperBound().value){return true;}
-		if(c.value < x->getLowerBound().value){return false;}
+		if(c >= x->getUpperBound()){return true;}
+		if(c < x->getLowerBound()){return false;}
 				
-			x->changeUpperBound(Bound(c.value, true));
-				
+			//x->changeUpperBound(Bound(c.value, true));
+			//TODO Change the method changeUpperBound;
+		x->changeUpperBound(c);
 			//this is now done by checkAndUpdateNonBasic
 			//if(x->getIsBasic()==false && x->getValue() > c.value){
 			//	update(x, c);
@@ -394,13 +394,13 @@
 		return true;
 	 }
 	 
-	 bool Tableau::assertLower(TVariable* x, Bound c){
-		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertLower Bound:" << c.value);
+	 bool Tableau::assertLower(TVariable* x, TRational c){
+		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertLower Bound:" << c);
 				
-		if(c.value <= x->getLowerBound().value){return true;}
-		if(c.value > x->getUpperBound().value){return false;}
+		if(c <= x->getLowerBound()){return true;}
+		if(c > x->getUpperBound()){return false;}
 				
-		x->changeLowerBound(Bound(c.value, false));
+		x->changeLowerBound(c);
 		
 		//this is now done by checkAndUpdateNonBasic
 		//if(x->getIsBasic()==false && x->getValue() < c.value){
@@ -429,8 +429,8 @@
 		 rowActive[row] = false;
 		 
 		//Replaced the stack for bounds with an activate/deactivate feature
-		 formToVar[formula]->changeUpperBound(Bound(TRational(10000000), true));
-		 formToVar[formula]->changeLowerBound(Bound(TRational(-10000000), false));
+		 formToVar[formula]->changeUpperBound(TRational(0,1,true));
+		 formToVar[formula]->changeLowerBound(TRational(0,-1,false));
 		 
 		 //Load the variable values of the last succesfull sat test (checkpoint)
 
@@ -460,7 +460,7 @@
 	 		TVariable* r = rowVars[i];
 	 		if(r->getId() < smallestId){
 
-	 			if((r->getValue()<r->getLowerBound().value || r->getValue()>r->getUpperBound().value)){
+	 			if((r->getValue()<r->getLowerBound() || r->getValue()>r->getUpperBound())){
 
 	 				smallestId = r->getId();
 	 				t = r;
@@ -485,8 +485,8 @@
 				if(c->getId() < smallestId){
 					
 					
-					if((matrix(pos, i)>0 && c->getValue()<c->getUpperBound().value) 
-						|| (matrix(pos, i)<0 && c->getValue()>c->getLowerBound().value))
+					if((matrix(pos, i)>0 && c->getValue()<c->getUpperBound()) 
+						|| (matrix(pos, i)<0 && c->getValue()>c->getLowerBound()))
 					{
 	 					smallestId = c->getId();
 	 					t = c;
@@ -500,8 +500,8 @@
 			for(int i=0;i<columnVars.size();i++){
 				TVariable* c = columnVars[i];
 				if(c->getId() < smallestId){
-					if((matrix(pos, i)<0 && c->getValue()<c->getUpperBound().value) 
-							|| (matrix(pos, i)>0 && c->getValue()>c->getLowerBound().value))
+					if((matrix(pos, i)<0 && c->getValue()<c->getUpperBound()) 
+							|| (matrix(pos, i)>0 && c->getValue()>c->getLowerBound()))
 					{
 	 					smallestId = c->getId();
 	 					t = c;
@@ -611,14 +611,14 @@
 	 	{
 	 		TVariable* v = x.second;
 			int pos = v->getIsBasic() ? v->getPositionMatrixY() : v->getPositionMatrixX();
-	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << pos << endl;
+	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound() << " u:" << v->getUpperBound() << " isBasic " << v->getIsBasic() << " pos " << pos << endl;
 	 	}
 		//Print Nonbasic Variables with value and bounds
 	 	for (auto const x : varToTVar)
 	 	{
 	 		TVariable* v = x.second;
 			int pos = v->getIsBasic() ? v->getPositionMatrixY() : v->getPositionMatrixX();
-	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound().value << " u:" << v->getUpperBound().value << " isBasic " << v->getIsBasic() << " pos " << pos << endl;
+	 		cout << v->getName() << " v:" << v->getValue() << " l:" << v->getLowerBound() << " u:" << v->getUpperBound() << " isBasic " << v->getIsBasic() << " pos " << pos << endl;
 	 	}
 	 }
 	}

@@ -20,23 +20,34 @@ namespace smtrat {
 	TRational::TRational():
 		rationalPart(0),
 		deltaPart(0),
-        inf(0)
+        inf(0),
+        upperBound(false)
 	{}
+
+    TRational::TRational(const Rational& rational):
+        rationalPart(rational),
+        deltaPart(0),
+        inf(0),
+        upperBound(false)
+    {}
+
 
     //Constructor for objects without strict inequalities
 
-	TRational::TRational(const Rational& rational, const Rational& inf):
+	TRational::TRational(const Rational& rational, const Rational& inf, bool bound):
 		rationalPart(rational),
 		deltaPart(0),
-        infPart(inf)
+        infPart(inf),
+        upperBound(bound)
 	{}
 
     //Constructor for objects with strict equalities
 
-	TRational::TRational(const Rational& rational, const Rational& delta, const Rational& inf):
+	TRational::TRational(const Rational& rational, const Rational& delta, const Rational& inf, bool bound):
 		rationalPart(rational),
 		deltaPart(delta),
-        infPart(inf)
+        infPart(inf),
+        upperBound(bound)
 	{}
 
     //Empty constructor
@@ -86,7 +97,7 @@ namespace smtrat {
         Rational second = deltaPart + _trational.getDeltaPart();
         Rational third = checkInf(this,_trational);
 
-        return TRational(first, second, third);
+        return TRational(first, second, third, upperBound);
     }
 
     /**
@@ -108,7 +119,7 @@ namespace smtrat {
 		Rational first = rationalPart - _trational.getRationalPart();
         Rational second = deltaPart - _trational.getDeltaPart();
         Rational third = checkInf(this,_trational);
-        return TRational(first, second,third);
+        return TRational(first, second, third, upperBound);
     }
 
     /**
@@ -130,7 +141,7 @@ namespace smtrat {
 		Rational first = _a * rationalPart;
         Rational second = _a * deltaPart;
         Rational third = infPart;
-        return TRational(first, second,third);
+        return TRational(first, second, third, upperBound);
     }
 
     /**
@@ -164,7 +175,7 @@ namespace smtrat {
 		Rational first = rationalPart / _a;
         Rational second = deltaPart / _a;
         Ration third = infPart;
-        return TRational(first, second,third);
+        return TRational(first, second, third, upperBound);
     }
 
  	/**
@@ -232,7 +243,9 @@ namespace smtrat {
     */
 
     bool TRational::operator ==(const Rational& _a) const {
-    	return (this->rationalPart == _a && this->deltaPart == 0);
+    	if (this->infPart == -1 || this->infPart == 1)
+            return false;
+        return (this->rationalPart == _a && this->deltaPart == 0);
     }
 
     /**
@@ -242,6 +255,10 @@ namespace smtrat {
     */
 
     bool TRational::operator <(const Rational& _a) const {
+        if (this->infPart == -1)
+            return true;
+        else if (this->infPart == 1) 
+            return false;
     	return ((this->rationalPart < _a) || (this->rationalPart == _a && this->deltaPart < 0));
     }
 
@@ -252,6 +269,10 @@ namespace smtrat {
     */
 
     bool TRational::operator >(const Rational& _a) const {
+        if (this->infPart == -1)
+            return false;
+        else if (this->infPart == 1) 
+            return true;
     	return ((this->rationalPart > _a) || (this->rationalPart == _a && this->deltaPart > 0));
     }
 
@@ -262,6 +283,10 @@ namespace smtrat {
     */
 
     bool TRational::operator <=(const Rational& _a) const {
+        if (this->infPart == -1)
+            return true;
+        else if (this->infPart == 1) 
+            return false;
     	return ((this->rationalPart < _a) || (this->rationalPart == _a && this->deltaPart <= 0));
     }
 
@@ -272,6 +297,10 @@ namespace smtrat {
     */
 
     bool TRational::operator >=(const Rational& _a) const {
+        if (this->infPart == -1)
+            return false;
+        else if (this->infPart == 1) 
+            return true;
     	return ((this->rationalPart > _a) || (this->rationalPart == _a && this->deltaPart >= 0));
     }
 
