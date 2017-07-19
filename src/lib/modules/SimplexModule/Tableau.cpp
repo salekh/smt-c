@@ -339,9 +339,9 @@
 	 	bool result = true;
 		SMTRAT_LOG_INFO("smtrat.my","Activate Row with basic = " << x->getIsBasic() );
 		
-		for(auto c: TRational){
+		for(auto c: boundSet){
 			
-			if(c.upperBound){
+			if(c.isUpperBound()){
 				//AssertUpper (for upper bounds)
 				result = result & assertUpper(x,c);
 				
