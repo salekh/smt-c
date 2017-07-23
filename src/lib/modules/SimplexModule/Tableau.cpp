@@ -54,58 +54,42 @@
 			//Create Bound as the negative constant part of the formula.
  			//E.g x + y -5 <= 0
  			//Bound is +5
-			std::vector<TRational> boundSet;
-			//TODO use infSet?!
-			//std::vector<TRational> infSet;
  			
  			switch( constraint.relation() )
  			{
 				case carl::Relation::EQ:
 				{
 					//Eq is handled as both >= and <=
-					TRational bound1 = -constraint.constantPart();
-					TRational bound2 = -constraint.constantPart();
-					boundSet = {bound1, bound2};
+					tVar->setUpperBoundFormula(new TRational(-constraint.constantPart()));
+					tVar->setLowerBoundFormula(new TRational(-constraint.constantPart()));
 					break;
 				}
 				
  				case carl::Relation::GEQ:
  				{
-					TRational bound = -constraint.constantPart();
-					boundSet = {bound};
+					tVar->setLowerBoundFormula(new TRational(-constraint.constantPart()));
 					break;
 					
  				}
  				case carl::Relation::LEQ:
  				{
-					TRational bound = -constraint.constantPart();
-					boundSet = {bound};
+					tVar->setUpperBoundFormula(new TRational(-constraint.constantPart()));
 					break;
  					
  				}
  				case carl::Relation::GREATER:
  				{
-					//Greater uses the delta part of the TRational
- 					TRational bound = -constraint.constantPart();
-					boundSet = {bound};
+					tVar->setLowerBoundFormula(new TRational(-constraint.constantPart(),1));
  					break;
  				}
  				case carl::Relation::LESS:
  				{
-					//Less uses the delta part of the TRational
- 					TRational bound = -constraint.constantPart();
-					boundSet = {bound};
+					tVar->setUpperBoundFormula(new TRational(-constraint.constantPart(),-1));
  					break;
  				}
  			}
 
 
- 			 for(TRational b : boundSet){
-				 SMTRAT_LOG_INFO("smtrat.my", "Created Bound " << b << " isUpperBound: " << b.isUpperBound());
-			 }
-
- 			
- 			formulaToBound[formula] = boundSet;
  			formToVar[formula] = tVar;
  		}
  		
@@ -226,6 +210,7 @@
  				
  				Rational factorRow = matrix(y,columnPos);
  				
+				//If factorRow is 0 we can skip the line
 				if(factorRow != 0){
 					for(int x=0;x<matrix.cols();x++){
 						
@@ -319,7 +304,6 @@
 			b-=x->getValue();
 			b*=matrix(row,column);
 			basic->getValue() += b;
-	 		//basic->setValue(basic->getValue() + (b.value-x->getValue())*matrix(row,column));
 	 	}
 	 	
 	 	x->setValue(b);
@@ -331,24 +315,18 @@
 	 
 	 bool Tableau::activateRow(FormulaT formula)
 	 {
-	 	std::vector<TRational> boundSet = formulaToBound[formula];
 	 	TVariable* x = formToVar[formula];
 	 	int row = formulaToRow[formula];
 	 	
-		//TODO IMPORTANT Question: update on first assertUpper/Lower can change variable values via update and second assert return false. Is this a problem?
 	 	bool result = true;
 		SMTRAT_LOG_INFO("smtrat.my","Activate Row with basic = " << x->getIsBasic() );
 		
-		for(auto c: boundSet){
-			
-			if(c.isUpperBound()){
-				//AssertUpper (for upper bounds)
-				result = result & assertUpper(x,c);
-				
-			}else {
-				//AssertLower (for lower bounds)
-				result = result & assertLower(x,c);
-			}
+		if(x->hasUpperBoundFormula()){
+			result = result & assertUpper(x);
+		}
+		
+		if(x->hasLowerBoundFormula()){
+			result = result & assertLower(x);
 		}
 		
 		//Only activate the row when all asserts were true
@@ -378,34 +356,17 @@
 	 }
 	 
 	 
-	 bool Tableau::assertUpper(TVariable* x, TRational c){
-		 SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper Bound:" << c << " "  << x->getValue());
-				
-		if(c >= x->getUpperBound()){return true;}
-		if(c < x->getLowerBound()){return false;}
-				
-			//x->changeUpperBound(Bound(c.value, true));
-			//TODO Change the method changeUpperBound;
-		x->changeUpperBound(c);
-			//this is now done by checkAndUpdateNonBasic
-			//if(x->getIsBasic()==false && x->getValue() > c.value){
-			//	update(x, c);
-			//}
+	 bool Tableau::assertUpper(TVariable* x){//, TRational c){
+		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertUpper Bound:" << c << " "  << x->getValue());
+		x->activateUpperBound(true);
+
 		return true;
 	 }
 	 
-	 bool Tableau::assertLower(TVariable* x, TRational c){
+	 bool Tableau::assertLower(TVariable* x){//, TRational c){
 		SMTRAT_LOG_INFO("smtrat.my","activateRow AssertLower Bound:" << c);
-				
-		if(c <= x->getLowerBound()){return true;}
-		if(c > x->getUpperBound()){return false;}
-				
-		x->changeLowerBound(c);
-		
-		//this is now done by checkAndUpdateNonBasic
-		//if(x->getIsBasic()==false && x->getValue() < c.value){
-		//	update(x, c);
-		//}
+		x->activateLowerBound(true);
+
 		return true;
 	 }
 	 
@@ -428,26 +389,21 @@
 		 int row = formulaToRow[formula];
 		 rowActive[row] = false;
 		 
-		//Replaced the stack for bounds with an activate/deactivate feature
-		 formToVar[formula]->changeUpperBound(TRational(0,1,true));
-		 formToVar[formula]->changeLowerBound(TRational(0,-1,false));
-		 
-		 //Load the variable values of the last succesfull sat test (checkpoint)
-
+		 formToVar[formula]->activateUpperBound(false);
+		 formToVar[formula]->activateLowerBound(false);
 	 }
 	 
 	 
 	 //Loads the values stored in the checkpoint
 	 void Tableau::loadCheckpoint(){
 		 for(auto r : rowVars){
-			 r->load();
+			 r->loadValue();
 		 }
 		 
 		 for(auto c : columnVars){
-			 c->load();
+			 c->loadValue();
 		 }
 	 }
-	 
 	 
 	 
 	 TVariable* Tableau::findSmallestBasicVariable()
@@ -565,7 +521,6 @@
 	 
 	 
 	 //prints the tableau, i.e. all variables (basic + non-basic) with value and bounds
-
 	 void Tableau::print(){
 	 	
 		 //Create Vector for formulas

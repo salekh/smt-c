@@ -1,7 +1,13 @@
-#include <stack>
+/**
+ * @file TVariable.h
+ * @author Sanchit Alekh <sanchit.alekh@rwth-aachen.de>
+ * @author Karsten Jungnitsch <karsten.jungnitsch@rwth-aachen.de>
+ * @author Alexander Reeh <alexander.reeh@rwth-aachen.de>
+ *
+ */
+ 
 #include "../../Common.h"
-#include "Bound.h"
-#include <limits>
+#include "TRational.h"
 
 
 namespace smtrat
@@ -12,6 +18,7 @@ namespace smtrat
 
 	private:
 
+				//algorithm depends on an order of the variables
 		int id=0;
 
 				//A TVariable is either connected to a Variable in the formula or to a formula
@@ -23,18 +30,22 @@ namespace smtrat
 				//Is stored after succesful check, to reset for backtrace
 		TRational lastValue;
 
-
+		//The actual bounds for this variable
 		TRational upperBound;
 
 		TRational lowerBound;
+		
+		//The bounds for the formula, are used to set the actual bounds when activated
+		TRational* upperBoundFormula = nullptr;
+		
+		TRational* lowerBoundFormula = nullptr;
 
 
 		bool isBasic;
 
 		bool isSlack;
 
-				//used in the method that finds the "problem set" of formulas
-				//helps to create the sets N- and N+ as described in the paper
+				//Allows fast access to the position, used to get values in the tableau matrix for variables
 		int positionMatrixX=-1;
 		int positionMatrixY=-1;
 
@@ -43,13 +54,15 @@ namespace smtrat
 
 		TVariable();
 
+		//Constructor for slack variables
 		TVariable(FormulaT formula, int pId, bool pIsBasic);
 
+		//Constructor for original variables
 		TVariable(carl::Variable pOriginal, int pId, bool pIsBasic);
 
-		void changeUpperBound(TRational b);
 
-		void changeLowerBound(TRational b);
+		void activateUpperBound(bool status);
+		void activateLowerBound(bool status);
 
 		int getId() { return id; };
 
@@ -59,9 +72,9 @@ namespace smtrat
 		TRational& getValue() { return value; };
 		void setValue(TRational r) { value = r; };
 
-				//Stores and load value/bounds
+				//Stores and load the value
 		void saveValue();
-		void load();
+		void loadValue();
 
 		void setPositionMatrixX(int positionMatrixX) {this->positionMatrixX = positionMatrixX;}
 		void setPositionMatrixY(int positionMatrixY) {this->positionMatrixY = positionMatrixY;}
@@ -70,11 +83,20 @@ namespace smtrat
 
 		TRational& getUpperBound() { return upperBound; };
 		TRational& getLowerBound() { return lowerBound; };
+		
+		void setUpperBoundFormula(TRational* bound){ upperBoundFormula = bound;}
+		void setLowerBoundFormula(TRational* bound){ lowerBoundFormula = bound;}
+		
+		bool hasUpperBoundFormula(){return upperBoundFormula != nullptr;}
+		bool hasLowerBoundFormula(){return lowerBoundFormula != nullptr;}
 
 		FormulaT& getFormula() { return formula; };
 
 		std::string getName();
 
+		/**
+		 * Takes a bound and returns a value for delta that this variable still fullfills this bound 
+		 */
 		Rational calculateDelta(TRational b);
 	};
 }

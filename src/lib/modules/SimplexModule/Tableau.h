@@ -1,4 +1,8 @@
 /**
+ * 
+ * The tableau takes the formulas and creates the TVariables and the matrix
+ * It contains all the necessary methods for the SimplexModule
+ * 
  * @file Tableau.h
  * @author Sanchit Alekh <sanchit.alekh@rwth-aachen.de>
  * @author Karsten Jungnitsch <karsten.jungnitsch@rwth-aachen.de>
@@ -36,9 +40,6 @@ namespace smtrat
 		std::vector<TVariable*> columnVars;
 		
 		
-				//Stores the bound for the "s" variable of the formula (vector, because "=" needs uper and lower bound)
-		carl::FastMap<FormulaT,std::vector<TRational>> formulaToBound;
-		
 				//Which formula is assigned to which matrix row
 		carl::FastMap<FormulaT,int> formulaToRow;
 		
@@ -51,13 +52,13 @@ namespace smtrat
 		
 		
 	private:
-				//Helper function that checks whether the tableau matrix is correct when using the values of the variables
+			//Helper function that checks whether the tableau matrix is correct when using the values of the variables
 		void checkTest();
 		
 			//Methods as described in the paper
-		bool assertUpper(TVariable* x, TRational c);
+		bool assertUpper(TVariable* x);
 		
-		bool assertLower(TVariable* x, TRational c);
+		bool assertLower(TVariable* x);
 		
 	public:
 		
@@ -78,33 +79,40 @@ namespace smtrat
 					//used by removeCore
 		void deactivateRow(FormulaT formula);
 		
-					//Called everytime after succesfull checkCore happend to store values for Backtracking as described in the paper
+				//Called everytime after succesfull checkCore happend to store values for Backtracking as described in the paper
 		void createCheckpointValue();
 		
-					//Created everytime befor assertUpper/assertLower is called for Backtracking as described in the paper
-		void createCheckpointBounds();
-		
+				//Called in removecore to reset variable values
 		void loadCheckpoint();
 		
+			/*
+			 * Because the order of addCore and removeCore can be arbitrary (for example add(a), add(b), remove(a), remove(b))
+			 * this method guarantees that all nonBasic variables are in their bounds
+			 * This is a change to the algorithm in the paper (where a strict order is assumed) and it happens in the assert method.
+			 * 
+			 */
+		 void checkAndUpdateNonBasic();
 		
-		void checkAndUpdateNonBasic();
 		
-		
-					//used as helper function for checkCore, finds smallest Variable that fullfills the function f.
-					//isBasic: weather the function is called on all basic or all nonbasic variables.
-					// function f takes a TVariable, a matrix value and returns a bool
-					// returns a TVariable if found, otherwise a nullpointer
+			/*
+			 * Finds the smallest Basic Variable that does not fullfill it bounds
+			 */
 		TVariable* findSmallestBasicVariable();
 		
+			/*
+			 * For a given position of a basic Variable that does not fullfill a bound and whether the bounds is upper:
+			 * Finds a NonBasic variable that can be changed so that the basicVariable can fullfill it bounds.
+			 */
 		TVariable* findSmallestNonBasicVariable(int posBasic, bool upperBound);
 		
 		
+			//Used in createInfisibleSubset to find all Variables that affect the given TVariable
 		std::set<TVariable*> findConflictVariables(TVariable* v);
 		
-					//Gets a map with the variables and keys to be inserted into the model
+				//Gets a map with the variables and keys to be inserted into the model
 		carl::FastMap<carl::Variable,Rational> getModelValues() const;
 		
-					//Prints the tableau on the screen
+				//Prints the whole tableau and varialbe informations
 		void print();
 	};
 }

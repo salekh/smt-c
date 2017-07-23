@@ -10,8 +10,8 @@ namespace smtrat
 		isBasic = pIsBasic;
 		formula = form;
 		
-		upperBound = TRational(0,1,true);   
-		lowerBound = TRational(0,-1,false);
+		upperBound = TRational(0,0,1);   
+		lowerBound = TRational(0,0,-1);
 		
 		isSlack = true;
 	}
@@ -22,8 +22,8 @@ namespace smtrat
 		id = pId;
 		isBasic = pIsBasic;
 		
-		upperBound = TRational(0,1,true); 
-		lowerBound = TRational(0,-1,false);
+		upperBound = TRational(0,0,1); 
+		lowerBound = TRational(0,0,-1);
 		
 		isSlack=false;
 	}
@@ -33,34 +33,31 @@ namespace smtrat
 	}
 	
 	//used for checkpointing
-	void TVariable::load(){ 
+	void TVariable::loadValue(){ 
 		value = lastValue; 
 	}
 	
-	void TVariable::changeUpperBound(TRational b){
-		Rational rat = getRationalPart(b);
-		Rational del = getDeltaPart(b);
-		Rational inf = getInfPart(b);
-
-		TRational newUpper = TRational(rat,del,inf,true);
-
-		upperBound = newUpper;
-	}
+	void TVariable::activateUpperBound(bool value){
+		if(value){
+			upperBound = *upperBoundFormula;
+		}else{
+			upperBound = TRational(0,0,1); 
+		}
+	};
 	
-	void TVariable::changeLowerBound(TRational b){
-		Rational rat = getRationalPart(b);
-		Rational del = getDeltaPart(b);
-		Rational inf = getInfPart(b);
-
-		TRational newLower = TRational(rat,del,inf,false);
-
-		lowerBound = newLower;
-	}
+	
+	void TVariable::activateLowerBound(bool value){
+		if(value){
+			lowerBound = *lowerBoundFormula;
+		}else{
+			lowerBound = TRational(0,0,-1); 
+		}
+	};
 	
 	Rational TVariable::calculateDelta(TRational b){
-		if(value.getRationalPart() != b.value.getRationalPart() && value.getDeltaPart() != b.value.getDeltaPart()){
-			Rational top = value.getRationalPart() - b.value.getRationalPart();
-			Rational bottom = value.getDeltaPart() - b.value.getDeltaPart();
+		if(b.getInfPart() == 0 && ( value.getRationalPart() != b.getRationalPart() && value.getDeltaPart() != b.getDeltaPart())){
+			Rational top = value.getRationalPart() - b.getRationalPart();
+			Rational bottom = value.getDeltaPart() - b.getDeltaPart();
 			return abs(top)/abs(bottom);
 		}
 		return 1;

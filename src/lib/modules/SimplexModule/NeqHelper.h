@@ -5,9 +5,6 @@ namespace smtrat
 
 		/**
 		 * @class NeqHelper
-		 * @author osboxes.org
-		 * @date 24/06/17
-		 * @file NeqHelper.h
 		 * @brief This class helps to decide whether checkCore needs to be aborted because of a neq formula
 		 */
 	class NeqHelper
