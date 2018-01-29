@@ -1,3 +1,10 @@
+The Module smt-c has been added by the following authors:
+Sanchit Alekh
+Alexander Reeh
+Karsten Jungnitsch
+
+This module performs SMT Solving with Simplex Algorithm. Other information about SMT-RAT follows:
+
 Project name: SMT-RAT - Satisfiability-Modulo-Theories Real Algebra Toolbox
 Contact: Florian Corzilius <corzilius@cs.rwth-aachen.de>, 
          Gereon Kremer <gereon.kremer@cs.rwth-aachen.de>, 
